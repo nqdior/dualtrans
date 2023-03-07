@@ -84,7 +84,7 @@ namespace DualDeepL
             {
                 Translate(orig, first, textbox_orig, textbox_first);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
@@ -103,25 +103,24 @@ namespace DualDeepL
                 Translate(first, orig, textbox_first, textbox_re_first);
                 Translate(first, second, textbox_first, textbox_second);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
                     + Environment.NewLine + ex.StackTrace
                     + Environment.NewLine + ex.HelpLink);
             }
-}
+        }
 
         private void second_textbox_TextChanged(object sender, EventArgs e)
         {
             string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
             string second = combo_second.SelectedValue.ToString();
-            try 
-            { 
-            Translate(second, orig, textbox_second, textbox_re_second);
+            try
+            {
+                Translate(second, orig, textbox_second, textbox_re_second);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
@@ -163,11 +162,9 @@ namespace DualDeepL
 
     public class ItemSet
     {
-        // DisplayMemberとValueMemberにはプロパティで指定する仕組み
         public String Display { get; set; }
         public String LangCode { get; set; }
 
-        // プロパティをコンストラクタでセット
         public ItemSet(String v, String s)
         {
             LangCode = v;
