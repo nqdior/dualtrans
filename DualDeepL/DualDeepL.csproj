@@ -6,10 +6,11 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>deepl_logo_icon_170284_256.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Syncfusion.SfListView.WinForms" Version="20.4.0.52" />
+    <Content Include="deepl_logo_icon_170284_256.ico" />
   </ItemGroup>
 
   <ItemGroup>
