@@ -12,8 +12,6 @@ namespace DualDeepL
         {
             InitializeComponent();
 
-            Console.WriteLine(Properties.Resources.ResourceManager);
-
             List<ItemSet> src = new List<ItemSet>
             {
                 new ItemSet("BG", "ƒuƒ‹ƒKƒŠƒAŒê"),
