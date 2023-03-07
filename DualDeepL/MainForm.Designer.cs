@@ -30,6 +30,11 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panel_top = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.titlePicture = new System.Windows.Forms.PictureBox();
             this.label_orig = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
@@ -52,6 +57,8 @@
             this.panel_orig_top = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel_top.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.titlePicture)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -64,6 +71,7 @@
             // 
             // panel_top
             // 
+            this.panel_top.Controls.Add(this.panel2);
             this.panel_top.Controls.Add(this.titlePicture);
             this.panel_top.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel_top.Location = new System.Drawing.Point(0, 0);
@@ -72,6 +80,63 @@
             this.panel_top.Padding = new System.Windows.Forms.Padding(6, 6, 6, 0);
             this.panel_top.Size = new System.Drawing.Size(1061, 41);
             this.panel_top.TabIndex = 9;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.label1);
+            this.panel2.Controls.Add(this.trackBar1);
+            this.panel2.Controls.Add(this.panel3);
+            this.panel2.Controls.Add(this.checkBox1);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel2.Location = new System.Drawing.Point(651, 6);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(404, 35);
+            this.panel2.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.label1.Location = new System.Drawing.Point(119, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(41, 12);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "透明度";
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Cursor = System.Windows.Forms.Cursors.SizeWE;
+            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.trackBar1.Location = new System.Drawing.Point(164, 0);
+            this.trackBar1.Minimum = 3;
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(128, 35);
+            this.trackBar1.TabIndex = 6;
+            this.trackBar1.TabStop = false;
+            this.trackBar1.Value = 10;
+            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+            // 
+            // panel3
+            // 
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel3.Location = new System.Drawing.Point(292, 0);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(16, 35);
+            this.panel3.TabIndex = 5;
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.checkBox1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.checkBox1.Location = new System.Drawing.Point(308, 0);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(96, 35);
+            this.checkBox1.TabIndex = 3;
+            this.checkBox1.Text = "最前面に固定";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // titlePicture
             // 
@@ -384,6 +449,9 @@
             this.Name = "MainForm";
             this.Text = "Dual DeepL Translater";
             this.panel_top.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.titlePicture)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
@@ -424,5 +492,10 @@
         private Panel panel_first_top;
         private Panel panel_orig_top;
         private TableLayoutPanel tableLayoutPanel1;
+        private Panel panel2;
+        private TrackBar trackBar1;
+        private Panel panel3;
+        private CheckBox checkBox1;
+        private Label label1;
     }
 }

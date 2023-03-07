@@ -85,8 +85,14 @@ namespace DualDeepL
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
+                    + Environment.NewLine + "-------------"
                     + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                    + Environment.NewLine + "-------------"
+                    + Environment.NewLine + ex.HelpLink,
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                    );
             }
         }
 
@@ -104,8 +110,14 @@ namespace DualDeepL
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
+                    + Environment.NewLine + "-------------"
                     + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                    + Environment.NewLine + "-------------"
+                    + Environment.NewLine + ex.HelpLink,
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                    );
             }
         }
 
@@ -121,8 +133,14 @@ namespace DualDeepL
             {
                 MessageBox.Show(ex.InnerException
                     + Environment.NewLine + ex.Message
+                    + Environment.NewLine + "-------------"
                     + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                    + Environment.NewLine + "-------------"
+                    + Environment.NewLine + ex.HelpLink,
+                    "エラー",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                    );
             }
         }
 
@@ -146,15 +164,41 @@ namespace DualDeepL
                     var response = await httpClient.SendAsync(request);
                     var resBodyStr = response.Content.ReadAsStringAsync().Result;
 
-                    TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
-                    GlbResponseBody glbResponseBody = new GlbResponseBody();
-                    glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
+                    try
+                    {
+                        TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
+                        GlbResponseBody glbResponseBody = new GlbResponseBody();
+                        glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
+                        output_textbox.Text = glbResponseBody.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (input_textbox.Text == String.Empty) { return; /* ignore */ }
 
-                    output_textbox.Text = glbResponseBody.Text;
+                        MessageBox.Show(ex.InnerException
+                            + Environment.NewLine + ex.Message
+                            + Environment.NewLine + "-------------"
+                            + Environment.NewLine + ex.StackTrace
+                            + Environment.NewLine + "-------------"
+                            + Environment.NewLine + ex.HelpLink,
+                            "エラー",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                            );
+                    }
                 }
             }
         }
 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            this.TopMost = checkBox1.Checked;
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            this.Opacity = trackBar1.Value * 0.1;
+        }
     }
 
     public class ItemSet
