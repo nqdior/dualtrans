@@ -379,9 +379,8 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.panel_top);
             this.Font = new System.Drawing.Font("BIZ UDゴシック", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.Name = "MainForm";
             this.Text = "Dual DeepL Translater";
             this.panel_top.ResumeLayout(false);

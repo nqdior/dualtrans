@@ -1,11 +1,8 @@
 using DualDeepL.Properties;
-using Syncfusion.WinForms.ListView;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static System.Windows.Forms.AxHost;
 
 namespace DualDeepL
 {
@@ -14,6 +11,8 @@ namespace DualDeepL
         public MainForm()
         {
             InitializeComponent();
+
+            Console.WriteLine(Properties.Resources.ResourceManager);
 
             List<ItemSet> src = new List<ItemSet>
             {
