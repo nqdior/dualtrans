@@ -1,20 +1,21 @@
 using DualDeepL.Properties;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
-        public MainForm()
-        {
-            InitializeComponent();
 
-            Console.WriteLine(Properties.Resources.ResourceManager);
-
-            List<ItemSet> src = new List<ItemSet>
+        List<ItemSet> src = new List<ItemSet>
             {
                 new ItemSet("BG", "ブルガリア語"),
                 new ItemSet("CS", "チェコ語"),
@@ -49,6 +50,12 @@ namespace DualDeepL
                 new ItemSet("UK", "ウクライナ語"),
                 new ItemSet("ZH", "中国語（簡体字）")
             };
+
+        public MainForm()
+        {
+            InitializeComponent();
+
+            Console.WriteLine(Properties.Resources.ResourceManager);
             List<ItemSet> src2 = new List<ItemSet>(src);
             List<ItemSet> src3 = new List<ItemSet>(src);
 
@@ -128,34 +135,29 @@ namespace DualDeepL
             }
         }
 
-        private async void Translate(String sourceLang, String targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
+
+        #region gpt engine
+
+        public async void Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
         {
-            using (var httpClient = new HttpClient())
-            {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
-                {
-                    request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.APIKey);
+            var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
+            var chat = api.Chat.CreateConversation();
+            chat.Model.ModelID = "gpt-3.5-turbo-0613";
 
-                    var contentList = new List<string>
-                    {
-                        "text=" + input_textbox.Text,
-                        "source_lang=" + sourceLang,
-                        "target_lang=" + targetLang
-                    };
-                    request.Content = new StringContent(string.Join("&", contentList));
-                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+            var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
+            var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
 
-                    var response = await httpClient.SendAsync(request);
-                    var resBodyStr = response.Content.ReadAsStringAsync().Result;
+            var prompt = $@"
+            以下の文章を、{sourceLangCaption}から、{targetLangCaption}に翻訳してください。;
 
-                    TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
-                    GlbResponseBody glbResponseBody = new GlbResponseBody();
-                    glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
+            {input_textbox.Text}";
+            chat.AppendUserInput(prompt);
 
-                    output_textbox.Text = glbResponseBody.Text;
-                }
-            }
+            // ChatGPTの回答
+            string response = await chat.GetResponseFromChatbotAsync();
+            output_textbox.Text = response;
         }
+        #endregion
 
     }
 
@@ -164,7 +166,7 @@ namespace DualDeepL
         public String Display { get; set; }
         public String LangCode { get; set; }
 
-        public ItemSet(String v, String s)
+        public ItemSet(string v, string s)
         {
             LangCode = v;
             Display = s;
@@ -273,4 +275,5 @@ namespace DualDeepL
     }
 
     #endregion translate response
+
 }
