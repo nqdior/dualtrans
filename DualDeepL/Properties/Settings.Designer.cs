@@ -25,13 +25,37 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sk-xxxxxx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sk-")]
         public string APIKey {
             get {
                 return ((string)(this["APIKey"]));
             }
             set {
                 this["APIKey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Instruct1 {
+            get {
+                return ((string)(this["Instruct1"]));
+            }
+            set {
+                this["Instruct1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Instruct2 {
+            get {
+                return ((string)(this["Instruct2"]));
+            }
+            set {
+                this["Instruct2"] = value;
             }
         }
     }

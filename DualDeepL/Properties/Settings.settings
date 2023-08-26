@@ -3,7 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="APIKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)">sk-xxxxxx</Value>
+      <Value Profile="(Default)">sk-</Value>
+    </Setting>
+    <Setting Name="Instruct1" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Instruct2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

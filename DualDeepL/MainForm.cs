@@ -74,21 +74,21 @@ namespace DualDeepL
             combo_second.ValueMember = "LangCode";
             combo_second.SelectedIndex = 31;
 
+            instruct_first.Text = Settings.Default.Instruct1;
+            instruct_second.Text = Settings.Default.Instruct2;
+
             this.ActiveControl = this.textbox_orig;
         }
 
-        private void orig_textbox_Leave(object sender, EventArgs e)
+        private async void orig_textbox_Leave(object sender, EventArgs e)
         {
-            textbox_first.Text = string.Empty;
-            textbox_re_first.Text = string.Empty;
-            textbox_second.Text = string.Empty;
-            textbox_re_second.Text = string.Empty;
+            if (textbox_orig.Text == string.Empty) return;
 
             string orig = combo_orig.SelectedValue.ToString();
             string first = combo_first.SelectedValue.ToString();
             try
             {
-                Translate(orig, first, textbox_orig, textbox_first);
+                await Translate(orig, first, textbox_orig, textbox_first, instruct_first);
             }
             catch (Exception ex)
             {
@@ -99,15 +99,15 @@ namespace DualDeepL
             }
         }
 
-        private void first_textbox_TextChanged(object sender, EventArgs e)
+        private async void first_textbox_TextChanged(object sender, EventArgs e)
         {
             string orig = combo_orig.SelectedValue.ToString();
             string first = combo_first.SelectedValue.ToString();
             string second = combo_second.SelectedValue.ToString();
             try
             {
-                Translate(first, orig, textbox_first, textbox_re_first);
-                Translate(first, second, textbox_first, textbox_second);
+                await Translate(first, orig, textbox_first, textbox_re_first);
+                await Translate(orig, second, textbox_orig, textbox_second, instruct_second);
             }
             catch (Exception ex)
             {
@@ -118,13 +118,13 @@ namespace DualDeepL
             }
         }
 
-        private void second_textbox_TextChanged(object sender, EventArgs e)
+        private async void second_textbox_TextChanged(object sender, EventArgs e)
         {
             string orig = combo_orig.SelectedValue.ToString();
             string second = combo_second.SelectedValue.ToString();
             try
             {
-                Translate(second, orig, textbox_second, textbox_re_second);
+                await Translate(second, orig, textbox_second, textbox_re_second);
             }
             catch (Exception ex)
             {
@@ -138,27 +138,60 @@ namespace DualDeepL
 
         #region gpt engine
 
-        public async void Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
+        public async Task Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox, RichTextBox instruct_box = null)
         {
-            var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
-            var chat = api.Chat.CreateConversation();
-            chat.Model.ModelID = "gpt-3.5-turbo-0613";
+            try
+            {
+                Cursor.Current = Cursors.WaitCursor;
 
-            var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
-            var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
+                var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
+                var chat = api.Chat.CreateConversation();
+                chat.Model.ModelID = "gpt-3.5-turbo-0613-16k";
 
-            var prompt = $@"
-            以下の文章を、{sourceLangCaption}から、{targetLangCaption}に翻訳してください。;
+                var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
+                var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
 
-            {input_textbox.Text}";
-            chat.AppendUserInput(prompt);
+                var prompt = $@"以下の文章を、{sourceLangCaption}から、{targetLangCaption}に翻訳してください。:";
+                prompt += $"{input_textbox.Text}";
 
-            // ChatGPTの回答
-            string response = await chat.GetResponseFromChatbotAsync();
-            output_textbox.Text = response;
+                if (instruct_box != null)
+                {
+                    if (instruct_box.Text != string.Empty)
+                    {
+                        prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}に翻訳してください。
+訳文の表記は #表記ルール に書かれた指示に従ってください。
+#表記ルール 
+{instruct_box.Text}
+
+#原文
+{input_textbox.Text}
+    ";
+                    }
+                }
+                chat.AppendUserInput(prompt);
+
+                // ChatGPTの回答
+                string response = await chat.GetResponseFromChatbotAsync();
+                output_textbox.Text = response;
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
         }
         #endregion
 
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            this.TopMost = checkBox1.Checked;
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Default.Instruct1 = instruct_first.Text;
+            Settings.Default.Instruct2 = instruct_second.Text;
+            Settings.Default.Save();
+        }
     }
 
     public class ItemSet
