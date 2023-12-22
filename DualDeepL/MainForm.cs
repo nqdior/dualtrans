@@ -1,13 +1,39 @@
 using DualDeepL.Properties;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
+using System.Resources;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Windows.Forms;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
+
+        // キーボードフックに関する定義
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWindowsHookEx(int idHook, KeyboardProc callback, IntPtr hInstance, uint threadId);
+        [DllImport("user32.dll")]
+        private static extern bool UnhookWindowsHookEx(IntPtr hInstance);
+        [DllImport("user32.dll")]
+        private static extern IntPtr CallNextHookEx(IntPtr idHook, int nCode, int wParam, IntPtr lParam);
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr LoadLibrary(string lpFileName);
+
+        private delegate IntPtr KeyboardProc(int nCode, int wParam, IntPtr lParam);
+        private KeyboardProc keyboardProc;
+        private IntPtr hookId = IntPtr.Zero;
+
+        // キー監視用変数
+        private bool isCPressedOnce = false;
+        private DateTime lastCPressTime;
+
+        // タスクトレイアイコン
+        private NotifyIcon trayIcon;
+        private ContextMenuStrip trayMenu;
+
 
         readonly List<ItemSet> src = new()
         {
@@ -67,11 +93,65 @@ namespace DualDeepL
             combo_orig.SelectedIndex = Settings.Default.OriginalLanguage;
             combo_first.SelectedIndex = Settings.Default.FirstLanguage;
             combo_second.SelectedIndex = Settings.Default.SecondLanguage;
+            combo_orig.SelectedValueChanged += combo_orig_SelectedIndexChanged;
+            combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
+            combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
+
 
             ActiveControl = textbox_orig;
+
+            // キーボードフックの設定
+            keyboardProc = new KeyboardProc(KeyboardHookProc);
+            using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
+            using (var curModule = curProcess.MainModule)
+            {
+                hookId = SetWindowsHookEx(13, keyboardProc, LoadLibrary(curModule.ModuleName), 0);
+            }
+
+            // タスクトレイアイコンの初期化
+            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add("Exit", null, OnTrayExitClicked);
+            trayIcon = new NotifyIcon()
+            {
+                Icon = SystemIcons.Application,
+                ContextMenuStrip = trayMenu,
+                Visible = true
+            };
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            trayIcon.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
+            trayIcon.DoubleClick += (sender, args) => ShowWindow();
+
+            // FormClosingイベントにハンドラを追加
+            this.FormClosing += MainForm_FormClosing;
         }
 
-        private async void Orig_textbox_Leave(object sender, EventArgs e)
+        private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && wParam == 0x100) // WM_KEYDOWN
+            {
+                var key = (Keys)Marshal.ReadInt32(lParam);
+                if (key == Keys.C)
+                {
+                    if (isCPressedOnce && (DateTime.Now - lastCPressTime).TotalMilliseconds < 500)
+                    {
+                        this.Invoke(new MethodInvoker(() =>
+                        {
+                            this.Show();
+                            this.WindowState = FormWindowState.Normal;
+                            textbox_orig.Text = Clipboard.GetText();
+                        }));
+                    }
+                    else
+                    {
+                        isCPressedOnce = true;
+                        lastCPressTime = DateTime.Now;
+                    }
+                }
+            }
+            return CallNextHookEx(hookId, nCode, wParam, lParam);
+        }
+
+        private async void Translate()
         {
             if (textbox_orig.Text == string.Empty) return;
 
@@ -91,6 +171,16 @@ namespace DualDeepL
                     + Environment.NewLine + ex.StackTrace
                     + Environment.NewLine + ex.HelpLink);
             }
+        }
+
+        private async void Orig_textbox_Leave(object sender, EventArgs e)
+        {
+            // Translate();
+        }
+
+        private void textbox_orig_TextChanged(object sender, EventArgs e)
+        {
+            Translate();
         }
 
         private async void First_textbox_TextChanged(object sender, EventArgs e)
@@ -209,10 +299,13 @@ namespace DualDeepL
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
-            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
-            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
-            Settings.Default.Save();
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                // アプリケーションの終了をキャンセル
+                e.Cancel = true;
+                // フォームを非表示にしてタスクトレイに格納
+                Hide();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -224,7 +317,43 @@ namespace DualDeepL
         {
             new InstructionForm().ShowDialog(2);
         }
+
+        private void combo_orig_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void combo_first_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void combo_second_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowWindow()
+        {
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
+        }
+
+        private void OnTrayExitClicked(object sender, EventArgs e)
+        {
+            trayIcon.Visible = false;
+            this.Close(); // アプリケーションを終了
+        }
     }
+
 
     public class ItemSet
     {

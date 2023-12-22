@@ -15,7 +15,9 @@
         {
             if (disposing && (components != null))
             {
-                components.Dispose();
+                if (components != null) components.Dispose();
+                UnhookWindowsHookEx(hookId);
+                trayIcon.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -307,6 +309,7 @@
             textbox_orig.Size = new Size(342, 532);
             textbox_orig.TabIndex = 0;
             textbox_orig.Text = "";
+            textbox_orig.TextChanged += textbox_orig_TextChanged;
             textbox_orig.Leave += Orig_textbox_Leave;
             // 
             // combo_orig
@@ -428,6 +431,7 @@
             Name = "MainForm";
             Text = "Dual DeepL Translater";
             FormClosing += MainForm_FormClosing;
+            Load += MainForm_Load;
             panel_top.ResumeLayout(false);
             panel_top.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)titlePicture).EndInit();
