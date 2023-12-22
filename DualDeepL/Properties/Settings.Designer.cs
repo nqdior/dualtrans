@@ -25,7 +25,7 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sk-")]
+        [global::System.Configuration.DefaultSettingValueAttribute("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")]
         public string APIKey {
             get {
                 return ((string)(this["APIKey"]));

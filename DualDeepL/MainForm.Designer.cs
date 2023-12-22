@@ -124,7 +124,7 @@
             tableLayoutPanel3.Controls.Add(textbox_second, 0, 0);
             tableLayoutPanel3.Controls.Add(label_second_arrow, 0, 1);
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(712, 166);
+            tableLayoutPanel3.Location = new Point(712, 75);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.Padding = new Padding(5);
             tableLayoutPanel3.RowCount = 3;
@@ -132,7 +132,7 @@
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel3.Size = new Size(346, 446);
+            tableLayoutPanel3.Size = new Size(346, 537);
             tableLayoutPanel3.TabIndex = 18;
             // 
             // textbox_re_second
@@ -140,12 +140,13 @@
             textbox_re_second.BackColor = Color.FromArgb(48, 52, 58);
             textbox_re_second.BorderStyle = BorderStyle.None;
             textbox_re_second.Dock = DockStyle.Fill;
+            textbox_re_second.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_re_second.ForeColor = Color.WhiteSmoke;
-            textbox_re_second.Location = new Point(8, 238);
+            textbox_re_second.Location = new Point(8, 283);
             textbox_re_second.Margin = new Padding(3, 2, 3, 2);
             textbox_re_second.Name = "textbox_re_second";
             textbox_re_second.ReadOnly = true;
-            textbox_re_second.Size = new Size(330, 201);
+            textbox_re_second.Size = new Size(330, 247);
             textbox_re_second.TabIndex = 4;
             textbox_re_second.Text = "";
             // 
@@ -154,11 +155,12 @@
             textbox_second.BackColor = Color.FromArgb(48, 52, 58);
             textbox_second.BorderStyle = BorderStyle.None;
             textbox_second.Dock = DockStyle.Fill;
+            textbox_second.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_second.ForeColor = Color.WhiteSmoke;
             textbox_second.Location = new Point(8, 7);
             textbox_second.Margin = new Padding(3, 2, 3, 2);
             textbox_second.Name = "textbox_second";
-            textbox_second.Size = new Size(330, 201);
+            textbox_second.Size = new Size(330, 246);
             textbox_second.TabIndex = 2;
             textbox_second.Text = "";
             textbox_second.TextChanged += second_textbox_TextChanged;
@@ -169,7 +171,7 @@
             label_second_arrow.AutoSize = true;
             label_second_arrow.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             label_second_arrow.ForeColor = Color.WhiteSmoke;
-            label_second_arrow.Location = new Point(8, 210);
+            label_second_arrow.Location = new Point(8, 255);
             label_second_arrow.Name = "label_second_arrow";
             label_second_arrow.Size = new Size(330, 26);
             label_second_arrow.TabIndex = 6;
@@ -225,7 +227,7 @@
             tableLayoutPanel2.Controls.Add(textbox_first, 0, 0);
             tableLayoutPanel2.Controls.Add(label_first_arrow, 0, 1);
             tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(361, 166);
+            tableLayoutPanel2.Location = new Point(361, 75);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.Padding = new Padding(5);
             tableLayoutPanel2.RowCount = 3;
@@ -233,7 +235,7 @@
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel2.Size = new Size(345, 446);
+            tableLayoutPanel2.Size = new Size(345, 537);
             tableLayoutPanel2.TabIndex = 17;
             // 
             // textbox_re_first
@@ -241,12 +243,13 @@
             textbox_re_first.BackColor = Color.FromArgb(48, 52, 58);
             textbox_re_first.BorderStyle = BorderStyle.None;
             textbox_re_first.Dock = DockStyle.Fill;
+            textbox_re_first.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_re_first.ForeColor = Color.WhiteSmoke;
-            textbox_re_first.Location = new Point(8, 238);
+            textbox_re_first.Location = new Point(8, 283);
             textbox_re_first.Margin = new Padding(3, 2, 3, 2);
             textbox_re_first.Name = "textbox_re_first";
             textbox_re_first.ReadOnly = true;
-            textbox_re_first.Size = new Size(329, 201);
+            textbox_re_first.Size = new Size(329, 247);
             textbox_re_first.TabIndex = 3;
             textbox_re_first.Text = "";
             // 
@@ -255,11 +258,12 @@
             textbox_first.BackColor = Color.FromArgb(48, 52, 58);
             textbox_first.BorderStyle = BorderStyle.None;
             textbox_first.Dock = DockStyle.Fill;
+            textbox_first.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_first.ForeColor = Color.WhiteSmoke;
             textbox_first.Location = new Point(8, 7);
             textbox_first.Margin = new Padding(3, 2, 3, 2);
             textbox_first.Name = "textbox_first";
-            textbox_first.Size = new Size(329, 201);
+            textbox_first.Size = new Size(329, 246);
             textbox_first.TabIndex = 1;
             textbox_first.Text = "";
             textbox_first.TextChanged += first_textbox_TextChanged;
@@ -270,7 +274,7 @@
             label_first_arrow.AutoSize = true;
             label_first_arrow.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             label_first_arrow.ForeColor = Color.WhiteSmoke;
-            label_first_arrow.Location = new Point(8, 210);
+            label_first_arrow.Location = new Point(8, 255);
             label_first_arrow.Name = "label_first_arrow";
             label_first_arrow.Size = new Size(329, 26);
             label_first_arrow.TabIndex = 6;
@@ -297,11 +301,12 @@
             textbox_orig.BackColor = Color.FromArgb(48, 52, 58);
             textbox_orig.BorderStyle = BorderStyle.None;
             textbox_orig.Dock = DockStyle.Fill;
+            textbox_orig.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_orig.ForeColor = Color.WhiteSmoke;
             textbox_orig.Location = new Point(5, 5);
             textbox_orig.Margin = new Padding(0);
             textbox_orig.Name = "textbox_orig";
-            textbox_orig.Size = new Size(342, 436);
+            textbox_orig.Size = new Size(342, 527);
             textbox_orig.TabIndex = 11;
             textbox_orig.Text = "";
             textbox_orig.Leave += orig_textbox_Leave;
@@ -325,10 +330,10 @@
             // 
             panel1.Controls.Add(textbox_orig);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(3, 166);
+            panel1.Location = new Point(3, 75);
             panel1.Name = "panel1";
             panel1.Padding = new Padding(5);
-            panel1.Size = new Size(352, 446);
+            panel1.Size = new Size(352, 537);
             panel1.TabIndex = 16;
             // 
             // panel_second_top
@@ -341,7 +346,7 @@
             panel_second_top.Location = new Point(712, 3);
             panel_second_top.Name = "panel_second_top";
             panel_second_top.Padding = new Padding(0, 5, 10, 5);
-            panel_second_top.Size = new Size(346, 157);
+            panel_second_top.Size = new Size(346, 66);
             panel_second_top.TabIndex = 14;
             // 
             // label1
@@ -365,7 +370,7 @@
             instruct_second.Location = new Point(65, 33);
             instruct_second.Margin = new Padding(3, 2, 3, 2);
             instruct_second.Name = "instruct_second";
-            instruct_second.Size = new Size(271, 119);
+            instruct_second.Size = new Size(271, 28);
             instruct_second.TabIndex = 13;
             instruct_second.Text = "";
             // 
@@ -379,7 +384,7 @@
             panel_first_top.Location = new Point(361, 3);
             panel_first_top.Name = "panel_first_top";
             panel_first_top.Padding = new Padding(0, 5, 10, 5);
-            panel_first_top.Size = new Size(345, 157);
+            panel_first_top.Size = new Size(345, 66);
             panel_first_top.TabIndex = 12;
             // 
             // label2
@@ -403,7 +408,7 @@
             instruct_first.Location = new Point(65, 33);
             instruct_first.Margin = new Padding(3, 2, 3, 2);
             instruct_first.Name = "instruct_first";
-            instruct_first.Size = new Size(270, 119);
+            instruct_first.Size = new Size(270, 28);
             instruct_first.TabIndex = 12;
             instruct_first.Text = "";
             // 
@@ -415,7 +420,7 @@
             panel_orig_top.Location = new Point(3, 3);
             panel_orig_top.Name = "panel_orig_top";
             panel_orig_top.Padding = new Padding(0, 5, 10, 5);
-            panel_orig_top.Size = new Size(352, 157);
+            panel_orig_top.Size = new Size(352, 66);
             panel_orig_top.TabIndex = 11;
             // 
             // tableLayoutPanel1
@@ -434,7 +439,7 @@
             tableLayoutPanel1.Location = new Point(0, 41);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 163F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 72F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new Size(1061, 615);
             tableLayoutPanel1.TabIndex = 10;

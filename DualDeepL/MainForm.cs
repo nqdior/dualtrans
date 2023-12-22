@@ -86,9 +86,12 @@ namespace DualDeepL
 
             string orig = combo_orig.SelectedValue.ToString();
             string first = combo_first.SelectedValue.ToString();
+            string second = combo_second.SelectedValue.ToString();
             try
             {
-                await Translate(orig, first, textbox_orig, textbox_first, instruct_first);
+                var translateTask1 = Translate(orig, first, textbox_orig, textbox_first, instruct_first);
+                var translateTask2 = Translate(orig, second, textbox_orig, textbox_second, instruct_second);
+                await Task.WhenAll(translateTask1, translateTask2);
             }
             catch (Exception ex)
             {
@@ -107,7 +110,7 @@ namespace DualDeepL
             try
             {
                 await Translate(first, orig, textbox_first, textbox_re_first);
-                await Translate(orig, second, textbox_orig, textbox_second, instruct_second);
+                // await Translate(orig, second, textbox_orig, textbox_second, instruct_second);
             }
             catch (Exception ex)
             {
@@ -151,23 +154,27 @@ namespace DualDeepL
                 var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
                 var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
 
-                var prompt = $@"以下の文章を、{sourceLangCaption}から、{targetLangCaption}に翻訳してください。:";
+                var prompt = $@"以下の文章を、{sourceLangCaption}から{targetLangCaption}へ翻訳してください。:" + Environment.NewLine;
                 prompt += $"{input_textbox.Text}";
 
                 if (instruct_box != null)
                 {
                     if (instruct_box.Text != string.Empty)
                     {
-                        prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}に翻訳してください。
+                        prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}へ翻訳してください。
 訳文の表記は #表記ルール に書かれた指示に従ってください。
-#表記ルール 
-{instruct_box.Text}
 
 #原文
 {input_textbox.Text}
+
+#表記ルール 
+{instruct_box.Text}
+
+#出力
     ";
                     }
                 }
+                Console.WriteLine(prompt);
                 chat.AppendUserInput(prompt);
 
                 // ChatGPTの回答
