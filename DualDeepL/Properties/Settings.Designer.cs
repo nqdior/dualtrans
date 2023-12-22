@@ -58,5 +58,17 @@ namespace DualDeepL.Properties {
                 this["Instruct2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("fd0a929f-4397-31fc-964c-934271821c36:fx")]
+        public string DeepLKey {
+            get {
+                return ((string)(this["DeepLKey"]));
+            }
+            set {
+                this["DeepLKey"] = value;
+            }
+        }
     }
 }
