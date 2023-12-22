@@ -109,7 +109,7 @@ namespace DualDeepL
             string second = combo_second.SelectedValue.ToString();
             try
             {
-                await Translate(first, orig, textbox_first, textbox_re_first);
+                await Translate_DeepL(first, orig, textbox_first, textbox_re_first);
                 // await Translate(orig, second, textbox_orig, textbox_second, instruct_second);
             }
             catch (Exception ex)
@@ -127,7 +127,7 @@ namespace DualDeepL
             string second = combo_second.SelectedValue.ToString();
             try
             {
-                await Translate(second, orig, textbox_second, textbox_re_second);
+                await Translate_DeepL(second, orig, textbox_second, textbox_re_second);
             }
             catch (Exception ex)
             {
@@ -187,6 +187,36 @@ namespace DualDeepL
             }
         }
         #endregion
+
+
+        private async Task Translate_DeepL(String sourceLang, String targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
+                {
+                    request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.APIKey);
+
+                    var contentList = new List<string>
+                    {
+                        "text=" + input_textbox.Text,
+                        "source_lang=" + sourceLang,
+                        "target_lang=" + targetLang
+                    };
+                    request.Content = new StringContent(string.Join("&", contentList));
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+
+                    var response = await httpClient.SendAsync(request);
+                    var resBodyStr = response.Content.ReadAsStringAsync().Result;
+
+                    TrnResponse trnResponse = System.Text.Json.JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
+                    GlbResponseBody glbResponseBody = new GlbResponseBody();
+                    glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
+
+                    output_textbox.Text = glbResponseBody.Text;
+                }
+            }
+        }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
