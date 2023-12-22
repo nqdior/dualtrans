@@ -1,22 +1,16 @@
 using DualDeepL.Properties;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
 
-        List<ItemSet> src = new List<ItemSet>
-            {
+        readonly List<ItemSet> src = new()
+        {
                 new ItemSet("BG", "ブルガリア語"),
                 new ItemSet("CS", "チェコ語"),
                 new ItemSet("DA", "デンマーク語"),
@@ -55,32 +49,29 @@ namespace DualDeepL
         {
             InitializeComponent();
 
-            Console.WriteLine(Properties.Resources.ResourceManager);
-            List<ItemSet> src2 = new List<ItemSet>(src);
-            List<ItemSet> src3 = new List<ItemSet>(src);
+            List<ItemSet> src2 = new(src);
+            List<ItemSet> src3 = new(src);
 
             combo_orig.DataSource = src;
             combo_orig.DisplayMember = "Display";
             combo_orig.ValueMember = "LangCode";
-            combo_orig.SelectedIndex = 15;
 
             combo_first.DataSource = src2;
             combo_first.DisplayMember = "Display";
             combo_first.ValueMember = "LangCode";
-            combo_first.SelectedIndex = 5;
 
             combo_second.DataSource = src3;
             combo_second.DisplayMember = "Display";
             combo_second.ValueMember = "LangCode";
-            combo_second.SelectedIndex = 31;
 
-            instruct_first.Text = Settings.Default.Instruct1;
-            instruct_second.Text = Settings.Default.Instruct2;
+            combo_orig.SelectedIndex = Settings.Default.OriginalLanguage;
+            combo_first.SelectedIndex = Settings.Default.FirstLanguage;
+            combo_second.SelectedIndex = Settings.Default.SecondLanguage;
 
-            this.ActiveControl = this.textbox_orig;
+            ActiveControl = textbox_orig;
         }
 
-        private async void orig_textbox_Leave(object sender, EventArgs e)
+        private async void Orig_textbox_Leave(object sender, EventArgs e)
         {
             if (textbox_orig.Text == string.Empty) return;
 
@@ -89,8 +80,8 @@ namespace DualDeepL
             string second = combo_second.SelectedValue.ToString();
             try
             {
-                var translateTask1 = Translate(orig, first, textbox_orig, textbox_first, instruct_first);
-                var translateTask2 = Translate(orig, second, textbox_orig, textbox_second, instruct_second);
+                var translateTask1 = Translate(orig, first, textbox_orig, textbox_first, Settings.Default.Instruct1);
+                var translateTask2 = Translate(orig, second, textbox_orig, textbox_second, Settings.Default.Instruct2);
                 await Task.WhenAll(translateTask1, translateTask2);
             }
             catch (Exception ex)
@@ -102,15 +93,13 @@ namespace DualDeepL
             }
         }
 
-        private async void first_textbox_TextChanged(object sender, EventArgs e)
+        private async void First_textbox_TextChanged(object sender, EventArgs e)
         {
             string orig = combo_orig.SelectedValue.ToString();
             string first = combo_first.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
             try
             {
                 await Translate_DeepL(first, orig, textbox_first, textbox_re_first);
-                // await Translate(orig, second, textbox_orig, textbox_second, instruct_second);
             }
             catch (Exception ex)
             {
@@ -121,7 +110,7 @@ namespace DualDeepL
             }
         }
 
-        private async void second_textbox_TextChanged(object sender, EventArgs e)
+        private async void Second_textbox_TextChanged(object sender, EventArgs e)
         {
             string orig = combo_orig.SelectedValue.ToString();
             string second = combo_second.SelectedValue.ToString();
@@ -141,7 +130,7 @@ namespace DualDeepL
 
         #region gpt engine
 
-        public async Task Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox, RichTextBox instruct_box = null)
+        public async Task Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox, string instruct_text = "")
         {
             try
             {
@@ -149,7 +138,7 @@ namespace DualDeepL
 
                 var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
                 var chat = api.Chat.CreateConversation();
-                chat.Model.ModelID = "gpt-3.5-turbo-0613-16k";
+                chat.Model.ModelID = "gpt-3.5-turbo-1106";
 
                 var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
                 var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
@@ -157,29 +146,26 @@ namespace DualDeepL
                 var prompt = $@"以下の文章を、{sourceLangCaption}から{targetLangCaption}へ翻訳してください。:" + Environment.NewLine;
                 prompt += $"{input_textbox.Text}";
 
-                if (instruct_box != null)
+                if (instruct_text != "")
                 {
-                    if (instruct_box.Text != string.Empty)
-                    {
-                        prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}へ翻訳してください。
+                    prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}へ翻訳してください。
 訳文の表記は #表記ルール に書かれた指示に従ってください。
 
 #原文
 {input_textbox.Text}
 
 #表記ルール 
-{instruct_box.Text}
+{instruct_text}
 
 #出力
     ";
-                    }
                 }
                 Console.WriteLine(prompt);
                 chat.AppendUserInput(prompt);
 
-                // ChatGPTの回答
                 string response = await chat.GetResponseFromChatbotAsync();
                 output_textbox.Text = response;
+                Console.WriteLine(output_textbox.Text);
             }
             finally
             {
@@ -189,52 +175,61 @@ namespace DualDeepL
         #endregion
 
 
-        private async Task Translate_DeepL(String sourceLang, String targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
+        private static async Task Translate_DeepL(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
         {
-            using (var httpClient = new HttpClient())
+            using var httpClient = new HttpClient();
+            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
-                {
-                    request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.DeepLKey);
-
-                    var contentList = new List<string>
+                request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.DeepLKey);
+                Console.WriteLine("DeepL-Auth-Key " + Settings.Default.DeepLKey);
+                var contentList = new List<string>
                     {
                         "text=" + input_textbox.Text,
                         "source_lang=" + sourceLang,
                         "target_lang=" + targetLang
                     };
-                    request.Content = new StringContent(string.Join("&", contentList));
-                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+                request.Content = new StringContent(string.Join("&", contentList));
+                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
 
-                    var response = await httpClient.SendAsync(request);
-                    var resBodyStr = response.Content.ReadAsStringAsync().Result;
+                var response = await httpClient.SendAsync(request);
+                var resBodyStr = response.Content.ReadAsStringAsync().Result;
 
-                    TrnResponse trnResponse = System.Text.Json.JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
-                    GlbResponseBody glbResponseBody = new GlbResponseBody();
-                    glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
+                TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
+                GlbResponseBody glbResponseBody = new()
+                {
+                    Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error."
+                };
 
-                    output_textbox.Text = glbResponseBody.Text;
-                }
+                output_textbox.Text = glbResponseBody.Text;
+                Console.WriteLine(output_textbox.Text);
             }
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            this.TopMost = checkBox1.Checked;
-        }
+        private void CheckBox1_CheckedChanged(object sender, EventArgs e) => TopMost = checkBox1.Checked;
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Settings.Default.Instruct1 = instruct_first.Text;
-            Settings.Default.Instruct2 = instruct_second.Text;
+            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
+            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
+            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
             Settings.Default.Save();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            new InstructionForm().ShowDialog(1);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            new InstructionForm().ShowDialog(2);
         }
     }
 
     public class ItemSet
     {
-        public String Display { get; set; }
-        public String LangCode { get; set; }
+        public string Display { get; set; }
+        public string LangCode { get; set; }
 
         public ItemSet(string v, string s)
         {
@@ -268,9 +263,9 @@ namespace DualDeepL
 
                 return resultCodeDictionaryRo;
             }
-            catch (System.Exception e)
+            catch
             {
-                throw e;
+                throw;
             }
         }
 
@@ -288,9 +283,9 @@ namespace DualDeepL
                     PropertyNameCaseInsensitive = true
                 };
             }
-            catch (System.Exception e)
+            catch
             {
-                throw e;
+                throw;
             }
         }
 

@@ -70,5 +70,41 @@ namespace DualDeepL.Properties {
                 this["DeepLKey"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FirstLanguage {
+            get {
+                return ((int)(this["FirstLanguage"]));
+            }
+            set {
+                this["FirstLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SecondLanguage {
+            get {
+                return ((int)(this["SecondLanguage"]));
+            }
+            set {
+                this["SecondLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int OriginalLanguage {
+            get {
+                return ((int)(this["OriginalLanguage"]));
+            }
+            set {
+                this["OriginalLanguage"] = value;
+            }
+        }
     }
 }

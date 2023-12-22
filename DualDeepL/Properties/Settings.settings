@@ -14,5 +14,14 @@
     <Setting Name="DeepLKey" Type="System.String" Scope="User">
       <Value Profile="(Default)">fd0a929f-4397-31fc-964c-934271821c36:fx</Value>
     </Setting>
+    <Setting Name="FirstLanguage" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="SecondLanguage" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="OriginalLanguage" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
