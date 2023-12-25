@@ -31,7 +31,6 @@ namespace DualDeepL
         private DateTime lastCPressTime;
 
         // タスクトレイアイコン
-        private NotifyIcon trayIcon;
         private ContextMenuStrip trayMenu;
 
 
@@ -43,8 +42,8 @@ namespace DualDeepL
                 new ItemSet("DE", "ドイツ語"),
                 new ItemSet("EL", "ギリシャ語"),
                 new ItemSet("EN", "英語"),
-                new ItemSet("EN-GB", "英語 (イギリス)"),
-                new ItemSet("EN-US", "英語 (アメリカ)"),
+                // new ItemSet("EN-GB", "英語 (イギリス)"),
+                // new ItemSet("EN-US", "英語 (アメリカ)"),
                 new ItemSet("ES", "スペイン語"),
                 new ItemSet("ET", "エストニア語"),
                 new ItemSet("FI", "フィンランド語"),
@@ -110,19 +109,13 @@ namespace DualDeepL
 
             // タスクトレイアイコンの初期化
             trayMenu = new ContextMenuStrip();
-            trayMenu.Items.Add("Exit", null, OnTrayExitClicked);
-            trayIcon = new NotifyIcon()
-            {
-                Icon = SystemIcons.Application,
-                ContextMenuStrip = trayMenu,
-                Visible = true
-            };
-            var resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            trayIcon.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
-            trayIcon.DoubleClick += (sender, args) => ShowWindow();
+            trayMenu.Items.Add("DualDeepLを終了する", null, OnTrayExitClicked);
+            trayIcon.ContextMenuStrip = trayMenu;
+            trayIcon.Visible = true;
+            trayIcon.Click += (sender, args) => ShowWindow();
 
             // FormClosingイベントにハンドラを追加
-            this.FormClosing += MainForm_FormClosing;
+            FormClosing += MainForm_FormClosing;
         }
 
         private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
@@ -271,7 +264,6 @@ namespace DualDeepL
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
             {
                 request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.DeepLKey);
-                Console.WriteLine("DeepL-Auth-Key " + Settings.Default.DeepLKey);
                 var contentList = new List<string>
                     {
                         "text=" + input_textbox.Text,
@@ -283,7 +275,6 @@ namespace DualDeepL
 
                 var response = await httpClient.SendAsync(request);
                 var resBodyStr = response.Content.ReadAsStringAsync().Result;
-
                 TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
                 GlbResponseBody glbResponseBody = new()
                 {
@@ -295,8 +286,12 @@ namespace DualDeepL
             }
         }
 
-        private void CheckBox1_CheckedChanged(object sender, EventArgs e) => TopMost = checkBox1.Checked;
-
+        private void CheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            button1.Enabled = !checkBox1.Checked;
+            button2.Enabled = !checkBox1.Checked;
+            TopMost = checkBox1.Checked;
+        }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
@@ -350,7 +345,7 @@ namespace DualDeepL
         private void OnTrayExitClicked(object sender, EventArgs e)
         {
             trayIcon.Visible = false;
-            this.Close(); // アプリケーションを終了
+            Application.Exit();
         }
     }
 

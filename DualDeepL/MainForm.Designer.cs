@@ -30,6 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             panel_top = new Panel();
             checkBox1 = new CheckBox();
@@ -56,6 +57,7 @@
             button1 = new Button();
             panel_orig_top = new Panel();
             tableLayoutPanel1 = new TableLayoutPanel();
+            trayIcon = new NotifyIcon(components);
             panel_top.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)titlePicture).BeginInit();
             tableLayoutPanel3.SuspendLayout();
@@ -81,6 +83,7 @@
             // 
             // checkBox1
             // 
+            checkBox1.Anchor = AnchorStyles.Right;
             checkBox1.AutoSize = true;
             checkBox1.Font = new Font("BIZ UDゴシック", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
             checkBox1.ForeColor = SystemColors.ButtonHighlight;
@@ -351,6 +354,7 @@
             // 
             // button2
             // 
+            button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button2.FlatStyle = FlatStyle.Flat;
             button2.ForeColor = SystemColors.ButtonHighlight;
             button2.Location = new Point(245, 35);
@@ -375,6 +379,7 @@
             // 
             // button1
             // 
+            button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button1.FlatStyle = FlatStyle.Flat;
             button1.ForeColor = SystemColors.ButtonHighlight;
             button1.Location = new Point(244, 35);
@@ -416,6 +421,12 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new Size(1061, 615);
             tableLayoutPanel1.TabIndex = 10;
+            // 
+            // trayIcon
+            // 
+            trayIcon.Icon = (Icon)resources.GetObject("trayIcon.Icon");
+            trayIcon.Text = "DualDeepL";
+            trayIcon.Visible = true;
             // 
             // MainForm
             // 
@@ -476,5 +487,6 @@
         private CheckBox checkBox1;
         private Button button1;
         private Button button2;
+        private NotifyIcon trayIcon;
     }
 }

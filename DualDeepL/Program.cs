@@ -1,17 +1,42 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
 namespace DualDeepL
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
+        static readonly string mutexName = "DualDeepL";
+
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            using (Mutex mutex = new Mutex(false, mutexName, out bool createdNew))
+            {
+                if (createdNew)
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    ApplicationConfiguration.Initialize();
+                    Application.Run(new MainForm());
+                }
+                else
+                {
+                    // 既に実行されているアプリケーションのインスタンスを見つける
+                    Process current = Process.GetCurrentProcess();
+                    foreach (Process process in Process.GetProcessesByName(current.ProcessName))
+                    {
+                        if (process.Id != current.Id)
+                        {
+                            // 既存のアプリケーションウィンドウをアクティブにする
+                            SetForegroundWindow(process.MainWindowHandle);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
