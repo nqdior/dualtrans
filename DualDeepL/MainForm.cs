@@ -6,11 +6,13 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
+        private System.Windows.Forms.Timer typingTimer;
 
         // キーボードフックに関する定義
         [DllImport("user32.dll")]
@@ -96,6 +98,10 @@ namespace DualDeepL
             combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
             combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
 
+            // タイマーの初期化
+            typingTimer = new System.Windows.Forms.Timer();
+            typingTimer.Interval = 1000; // タイマーを1秒に設定
+            typingTimer.Tick += TypingTimer_Tick; // タイマーのイベントハンドラを追加
 
             ActiveControl = textbox_orig;
 
@@ -127,10 +133,12 @@ namespace DualDeepL
                 {
                     if (isCPressedOnce && (DateTime.Now - lastCPressTime).TotalMilliseconds < 500)
                     {
-                        this.Invoke(new MethodInvoker(() =>
+                        Invoke(new MethodInvoker(() =>
                         {
-                            this.Show();
-                            this.WindowState = FormWindowState.Normal;
+                            Show();
+                            WindowState = FormWindowState.Normal;
+                            TopMost = true;
+                            TopMost = false;
                             textbox_orig.Text = Clipboard.GetText();
                         }));
                     }
@@ -173,6 +181,16 @@ namespace DualDeepL
 
         private void textbox_orig_TextChanged(object sender, EventArgs e)
         {
+            // テキストが変更されるたびにタイマーをリセット
+            typingTimer.Stop();
+            typingTimer.Start();
+        }
+        private void TypingTimer_Tick(object sender, EventArgs e)
+        {
+            // タイマーが発火したら、タイピングが終了したとみなす
+            typingTimer.Stop();
+            Console.WriteLine("Typing finished.");
+            // タイピング終了後の処理をここに記述
             Translate();
         }
 
@@ -221,7 +239,7 @@ namespace DualDeepL
 
                 var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
                 var chat = api.Chat.CreateConversation();
-                chat.Model.ModelID = "gpt-3.5-turbo-1106";
+                chat.Model.ModelID = "gpt-4o-2024-05-13";
 
                 var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
                 var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
@@ -243,12 +261,19 @@ namespace DualDeepL
 #出力
     ";
                 }
-                Console.WriteLine(prompt);
                 chat.AppendUserInput(prompt);
 
                 string response = await chat.GetResponseFromChatbotAsync();
+
+                /*
+                prompt = $@"あなたは翻訳の{targetLangCaption}の校正に関して世界最高のプロフェッショナルです。以下の{targetLangCaption}に関して、日常会話として添削してください。加えて、修正箇所がある場合は、1つの修正箇所ごとに修正理由を詳細に説明し、修正案を{targetLangCaption}で記載してください。なお解説は日本語で行い、修正案は可能な限り元案と文字数を合わせること。" + Environment.NewLine;
+                prompt += $"{response}";
+                chat.AppendUserInput(prompt);
+
+                response = await chat.GetResponseFromChatbotAsync();
+                */
+
                 output_textbox.Text = response;
-                Console.WriteLine(output_textbox.Text);
             }
             finally
             {
@@ -338,8 +363,10 @@ namespace DualDeepL
 
         private void ShowWindow()
         {
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            Show();
+            WindowState = FormWindowState.Normal;
+            TopMost = true;
+            TopMost = false;
         }
 
         private void OnTrayExitClicked(object sender, EventArgs e)

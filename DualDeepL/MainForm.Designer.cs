@@ -87,9 +87,9 @@
             checkBox1.AutoSize = true;
             checkBox1.Font = new Font("BIZ UDゴシック", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
             checkBox1.ForeColor = SystemColors.ButtonHighlight;
-            checkBox1.Location = new Point(936, 12);
+            checkBox1.Location = new Point(878, 12);
             checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(116, 19);
+            checkBox1.Size = new Size(174, 27);
             checkBox1.TabIndex = 1;
             checkBox1.Text = "最前面に表示";
             checkBox1.UseVisualStyleBackColor = true;
@@ -115,7 +115,7 @@
             label_orig.Location = new Point(0, 5);
             label_orig.Name = "label_orig";
             label_orig.Padding = new Padding(5);
-            label_orig.Size = new Size(49, 26);
+            label_orig.Size = new Size(68, 34);
             label_orig.TabIndex = 8;
             label_orig.Text = "原文";
             // 
@@ -190,9 +190,9 @@
             combo_first.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             combo_first.ForeColor = Color.WhiteSmoke;
             combo_first.FormattingEnabled = true;
-            combo_first.Location = new Point(65, 5);
+            combo_first.Location = new Point(92, 5);
             combo_first.Name = "combo_first";
-            combo_first.Size = new Size(270, 22);
+            combo_first.Size = new Size(243, 29);
             combo_first.TabIndex = 11;
             combo_first.TabStop = false;
             // 
@@ -205,7 +205,7 @@
             label_first.Location = new Point(0, 5);
             label_first.Name = "label_first";
             label_first.Padding = new Padding(5);
-            label_first.Size = new Size(65, 26);
+            label_first.Size = new Size(92, 34);
             label_first.TabIndex = 10;
             label_first.Text = "訳文１";
             // 
@@ -218,7 +218,7 @@
             label_second.Location = new Point(0, 5);
             label_second.Name = "label_second";
             label_second.Padding = new Padding(5);
-            label_second.Size = new Size(65, 26);
+            label_second.Size = new Size(92, 34);
             label_second.TabIndex = 10;
             label_second.Text = "訳文２";
             // 
@@ -293,9 +293,9 @@
             combo_second.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             combo_second.ForeColor = Color.WhiteSmoke;
             combo_second.FormattingEnabled = true;
-            combo_second.Location = new Point(65, 5);
+            combo_second.Location = new Point(92, 5);
             combo_second.Name = "combo_second";
-            combo_second.Size = new Size(271, 22);
+            combo_second.Size = new Size(244, 29);
             combo_second.TabIndex = 11;
             combo_second.TabStop = false;
             // 
@@ -324,9 +324,9 @@
             combo_orig.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             combo_orig.ForeColor = Color.WhiteSmoke;
             combo_orig.FormattingEnabled = true;
-            combo_orig.Location = new Point(49, 5);
+            combo_orig.Location = new Point(68, 5);
             combo_orig.Name = "combo_orig";
-            combo_orig.Size = new Size(293, 22);
+            combo_orig.Size = new Size(274, 29);
             combo_orig.TabIndex = 9;
             combo_orig.TabStop = false;
             // 
@@ -357,7 +357,7 @@
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button2.FlatStyle = FlatStyle.Flat;
             button2.ForeColor = SystemColors.ButtonHighlight;
-            button2.Location = new Point(245, 35);
+            button2.Location = new Point(245, -9);
             button2.Name = "button2";
             button2.Size = new Size(91, 23);
             button2.TabIndex = 12;
@@ -382,7 +382,7 @@
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button1.FlatStyle = FlatStyle.Flat;
             button1.ForeColor = SystemColors.ButtonHighlight;
-            button1.Location = new Point(244, 35);
+            button1.Location = new Point(244, -9);
             button1.Name = "button1";
             button1.Size = new Size(91, 23);
             button1.TabIndex = 10;
@@ -430,7 +430,7 @@
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(6F, 12F);
+            AutoScaleDimensions = new SizeF(9F, 18F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(41, 44, 50);
             ClientSize = new Size(1061, 656);

@@ -25,7 +25,7 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("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")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string APIKey {
             get {
                 return ((string)(this["APIKey"]));
@@ -61,7 +61,7 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("fd0a929f-4397-31fc-964c-934271821c36:fx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string DeepLKey {
             get {
                 return ((string)(this["DeepLKey"]));
