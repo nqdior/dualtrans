@@ -1,29 +1,51 @@
 using DualDeepL.Properties;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
+using System.Resources;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+        private System.Windows.Forms.Timer typingTimer;
+
+        // キーボードフックに関する定義
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWindowsHookEx(int idHook, KeyboardProc callback, IntPtr hInstance, uint threadId);
+        [DllImport("user32.dll")]
+        private static extern bool UnhookWindowsHookEx(IntPtr hInstance);
+        [DllImport("user32.dll")]
+        private static extern IntPtr CallNextHookEx(IntPtr idHook, int nCode, int wParam, IntPtr lParam);
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr LoadLibrary(string lpFileName);
+
+        private delegate IntPtr KeyboardProc(int nCode, int wParam, IntPtr lParam);
+        private KeyboardProc keyboardProc;
+        private IntPtr hookId = IntPtr.Zero;
+
+        // キー監視用変数
+        private bool isCPressedOnce = false;
+        private DateTime lastCPressTime;
+
+        // タスクトレイアイコン
+        private ContextMenuStrip trayMenu;
+
+
+        readonly List<ItemSet> src = new()
         {
-            InitializeComponent();
-
-            Console.WriteLine(Properties.Resources.ResourceManager);
-
-            List<ItemSet> src = new List<ItemSet>
-            {
                 new ItemSet("BG", "ブルガリア語"),
                 new ItemSet("CS", "チェコ語"),
                 new ItemSet("DA", "デンマーク語"),
                 new ItemSet("DE", "ドイツ語"),
                 new ItemSet("EL", "ギリシャ語"),
                 new ItemSet("EN", "英語"),
-                new ItemSet("EN-GB", "英語 (イギリス)"),
-                new ItemSet("EN-US", "英語 (アメリカ)"),
+                // new ItemSet("EN-GB", "英語 (イギリス)"),
+                // new ItemSet("EN-US", "英語 (アメリカ)"),
                 new ItemSet("ES", "スペイン語"),
                 new ItemSet("ET", "エストニア語"),
                 new ItemSet("FI", "フィンランド語"),
@@ -49,122 +71,318 @@ namespace DualDeepL
                 new ItemSet("UK", "ウクライナ語"),
                 new ItemSet("ZH", "中国語（簡体字）")
             };
-            List<ItemSet> src2 = new List<ItemSet>(src);
-            List<ItemSet> src3 = new List<ItemSet>(src);
+
+        public MainForm()
+        {
+            InitializeComponent();
+
+            List<ItemSet> src2 = new(src);
+            List<ItemSet> src3 = new(src);
 
             combo_orig.DataSource = src;
             combo_orig.DisplayMember = "Display";
             combo_orig.ValueMember = "LangCode";
-            combo_orig.SelectedIndex = 15;
 
             combo_first.DataSource = src2;
             combo_first.DisplayMember = "Display";
             combo_first.ValueMember = "LangCode";
-            combo_first.SelectedIndex = 5;
 
             combo_second.DataSource = src3;
             combo_second.DisplayMember = "Display";
             combo_second.ValueMember = "LangCode";
-            combo_second.SelectedIndex = 31;
 
-            this.ActiveControl = this.textbox_orig;
+            combo_orig.SelectedIndex = Settings.Default.OriginalLanguage;
+            combo_first.SelectedIndex = Settings.Default.FirstLanguage;
+            combo_second.SelectedIndex = Settings.Default.SecondLanguage;
+            combo_orig.SelectedValueChanged += combo_orig_SelectedIndexChanged;
+            combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
+            combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
+
+            // タイマーの初期化
+            typingTimer = new System.Windows.Forms.Timer();
+            typingTimer.Interval = 1000; // タイマーを1秒に設定
+            typingTimer.Tick += TypingTimer_Tick; // タイマーのイベントハンドラを追加
+
+            ActiveControl = textbox_orig;
+
+            // キーボードフックの設定
+            keyboardProc = new KeyboardProc(KeyboardHookProc);
+            using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
+            using (var curModule = curProcess.MainModule)
+            {
+                hookId = SetWindowsHookEx(13, keyboardProc, LoadLibrary(curModule.ModuleName), 0);
+            }
+
+            // タスクトレイアイコンの初期化
+            trayMenu = new ContextMenuStrip();
+            trayMenu.Items.Add("DualDeepLを終了する", null, OnTrayExitClicked);
+            trayIcon.ContextMenuStrip = trayMenu;
+            trayIcon.Visible = true;
+            trayIcon.Click += (sender, args) => ShowWindow();
+
+            // FormClosingイベントにハンドラを追加
+            FormClosing += MainForm_FormClosing;
         }
 
-        private void orig_textbox_Leave(object sender, EventArgs e)
+        private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
         {
-            textbox_first.Text = string.Empty;
-            textbox_re_first.Text = string.Empty;
-            textbox_second.Text = string.Empty;
-            textbox_re_second.Text = string.Empty;
-
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
-            try
+            if (nCode >= 0 && wParam == 0x100) // WM_KEYDOWN
             {
-                Translate(orig, first, textbox_orig, textbox_first);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
-            }
-        }
-
-        private void first_textbox_TextChanged(object sender, EventArgs e)
-        {
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
-            try
-            {
-                Translate(first, orig, textbox_first, textbox_re_first);
-                Translate(first, second, textbox_first, textbox_second);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
-            }
-        }
-
-        private void second_textbox_TextChanged(object sender, EventArgs e)
-        {
-            string orig = combo_orig.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
-            try
-            {
-                Translate(second, orig, textbox_second, textbox_re_second);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
-            }
-        }
-
-        private async void Translate(String sourceLang, String targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
-        {
-            using (var httpClient = new HttpClient())
-            {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
+                var key = (Keys)Marshal.ReadInt32(lParam);
+                if (key == Keys.C)
                 {
-                    request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.APIKey);
+                    if (isCPressedOnce && (DateTime.Now - lastCPressTime).TotalMilliseconds < 500)
+                    {
+                        Invoke(new MethodInvoker(() =>
+                        {
+                            Show();
+                            WindowState = FormWindowState.Normal;
+                            TopMost = true;
+                            TopMost = false;
+                            textbox_orig.Text = Clipboard.GetText();
+                        }));
+                    }
+                    else
+                    {
+                        isCPressedOnce = true;
+                        lastCPressTime = DateTime.Now;
+                    }
+                }
+            }
+            return CallNextHookEx(hookId, nCode, wParam, lParam);
+        }
 
-                    var contentList = new List<string>
+        private async void Translate()
+        {
+            if (textbox_orig.Text == string.Empty) return;
+
+            string orig = combo_orig.SelectedValue.ToString();
+            string first = combo_first.SelectedValue.ToString();
+            string second = combo_second.SelectedValue.ToString();
+            try
+            {
+                var translateTask1 = Translate(orig, first, textbox_orig, textbox_first, Settings.Default.Instruct1);
+                var translateTask2 = Translate(orig, second, textbox_orig, textbox_second, Settings.Default.Instruct2);
+                await Task.WhenAll(translateTask1, translateTask2);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.InnerException
+                    + Environment.NewLine + ex.Message
+                    + Environment.NewLine + ex.StackTrace
+                    + Environment.NewLine + ex.HelpLink);
+            }
+        }
+
+        private async void Orig_textbox_Leave(object sender, EventArgs e)
+        {
+            // Translate();
+        }
+
+        private void textbox_orig_TextChanged(object sender, EventArgs e)
+        {
+            // テキストが変更されるたびにタイマーをリセット
+            typingTimer.Stop();
+            typingTimer.Start();
+        }
+        private void TypingTimer_Tick(object sender, EventArgs e)
+        {
+            // タイマーが発火したら、タイピングが終了したとみなす
+            typingTimer.Stop();
+            Console.WriteLine("Typing finished.");
+            // タイピング終了後の処理をここに記述
+            Translate();
+        }
+
+        private async void First_textbox_TextChanged(object sender, EventArgs e)
+        {
+            string orig = combo_orig.SelectedValue.ToString();
+            string first = combo_first.SelectedValue.ToString();
+            try
+            {
+                await Translate_DeepL(first, orig, textbox_first, textbox_re_first);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.InnerException
+                    + Environment.NewLine + ex.Message
+                    + Environment.NewLine + ex.StackTrace
+                    + Environment.NewLine + ex.HelpLink);
+            }
+        }
+
+        private async void Second_textbox_TextChanged(object sender, EventArgs e)
+        {
+            string orig = combo_orig.SelectedValue.ToString();
+            string second = combo_second.SelectedValue.ToString();
+            try
+            {
+                await Translate_DeepL(second, orig, textbox_second, textbox_re_second);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.InnerException
+                    + Environment.NewLine + ex.Message
+                    + Environment.NewLine + ex.StackTrace
+                    + Environment.NewLine + ex.HelpLink);
+            }
+        }
+
+
+        #region gpt engine
+
+        public async Task Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox, string instruct_text = "")
+        {
+            try
+            {
+                Cursor.Current = Cursors.WaitCursor;
+
+                var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
+                var chat = api.Chat.CreateConversation();
+                chat.Model.ModelID = "gpt-4o-2024-05-13";
+
+                var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
+                var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
+
+                var prompt = $@"以下の文章を、{sourceLangCaption}から{targetLangCaption}へ翻訳してください。:" + Environment.NewLine;
+                prompt += $"{input_textbox.Text}";
+
+                if (instruct_text != "")
+                {
+                    prompt = $@"#原文 にある{sourceLangCaption}の文章を{targetLangCaption}へ翻訳してください。
+訳文の表記は #表記ルール に書かれた指示に従ってください。
+
+#原文
+{input_textbox.Text}
+
+#表記ルール 
+{instruct_text}
+
+#出力
+    ";
+                }
+                chat.AppendUserInput(prompt);
+
+                string response = await chat.GetResponseFromChatbotAsync();
+
+                /*
+                prompt = $@"あなたは翻訳の{targetLangCaption}の校正に関して世界最高のプロフェッショナルです。以下の{targetLangCaption}に関して、日常会話として添削してください。加えて、修正箇所がある場合は、1つの修正箇所ごとに修正理由を詳細に説明し、修正案を{targetLangCaption}で記載してください。なお解説は日本語で行い、修正案は可能な限り元案と文字数を合わせること。" + Environment.NewLine;
+                prompt += $"{response}";
+                chat.AppendUserInput(prompt);
+
+                response = await chat.GetResponseFromChatbotAsync();
+                */
+
+                output_textbox.Text = response;
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+        }
+        #endregion
+
+
+        private static async Task Translate_DeepL(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
+        {
+            using var httpClient = new HttpClient();
+            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
+            {
+                request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.DeepLKey);
+                var contentList = new List<string>
                     {
                         "text=" + input_textbox.Text,
                         "source_lang=" + sourceLang,
                         "target_lang=" + targetLang
                     };
-                    request.Content = new StringContent(string.Join("&", contentList));
-                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
+                request.Content = new StringContent(string.Join("&", contentList));
+                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
 
-                    var response = await httpClient.SendAsync(request);
-                    var resBodyStr = response.Content.ReadAsStringAsync().Result;
+                var response = await httpClient.SendAsync(request);
+                var resBodyStr = response.Content.ReadAsStringAsync().Result;
+                TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
+                GlbResponseBody glbResponseBody = new()
+                {
+                    Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error."
+                };
 
-                    TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
-                    GlbResponseBody glbResponseBody = new GlbResponseBody();
-                    glbResponseBody.Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error.";
-
-                    output_textbox.Text = glbResponseBody.Text;
-                }
+                output_textbox.Text = glbResponseBody.Text;
+                Console.WriteLine(output_textbox.Text);
             }
         }
 
+        private void CheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            button1.Enabled = !checkBox1.Checked;
+            button2.Enabled = !checkBox1.Checked;
+            TopMost = checkBox1.Checked;
+        }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                // アプリケーションの終了をキャンセル
+                e.Cancel = true;
+                // フォームを非表示にしてタスクトレイに格納
+                Hide();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            new InstructionForm().ShowDialog(1);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            new InstructionForm().ShowDialog(2);
+        }
+
+        private void combo_orig_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void combo_first_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void combo_second_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
+            Settings.Default.Save();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowWindow()
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+            TopMost = true;
+            TopMost = false;
+        }
+
+        private void OnTrayExitClicked(object sender, EventArgs e)
+        {
+            trayIcon.Visible = false;
+            Application.Exit();
+        }
     }
+
 
     public class ItemSet
     {
-        public String Display { get; set; }
-        public String LangCode { get; set; }
+        public string Display { get; set; }
+        public string LangCode { get; set; }
 
-        public ItemSet(String v, String s)
+        public ItemSet(string v, string s)
         {
             LangCode = v;
             Display = s;
@@ -196,9 +414,9 @@ namespace DualDeepL
 
                 return resultCodeDictionaryRo;
             }
-            catch (System.Exception e)
+            catch
             {
-                throw e;
+                throw;
             }
         }
 
@@ -216,9 +434,9 @@ namespace DualDeepL
                     PropertyNameCaseInsensitive = true
                 };
             }
-            catch (System.Exception e)
+            catch
             {
-                throw e;
+                throw;
             }
         }
 
@@ -273,4 +491,5 @@ namespace DualDeepL
     }
 
     #endregion translate response
+
 }
