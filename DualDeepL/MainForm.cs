@@ -1,6 +1,7 @@
 using DualDeepL.Properties;
 using DualDeepL.Models;
 using DualDeepL.Services;
+using DualDeepL.Utils;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -36,12 +37,22 @@ namespace DualDeepL
         public MainForm()
         {
             InitializeComponent();
+            InitializeServices();
+            SetupLanguageComboBoxes();
+            SetupEventHandlers();
+            SetupTimer();
+            SetupKeyboardHook();
+            SetupTrayIcon();
+        }
 
-            // Initialize translation services
+        private void InitializeServices()
+        {
             openAITranslationService = new OpenAITranslationService();
             deepLTranslationService = new DeepLTranslationService();
+        }
 
-            // Setup language combo boxes
+        private void SetupLanguageComboBoxes()
+        {
             var languages1 = LanguageManager.GetLanguages();
             var languages2 = LanguageManager.GetLanguages();
             var languages3 = LanguageManager.GetLanguages();
@@ -61,34 +72,41 @@ namespace DualDeepL
             combo_orig.SelectedIndex = Settings.Default.OriginalLanguage;
             combo_first.SelectedIndex = Settings.Default.FirstLanguage;
             combo_second.SelectedIndex = Settings.Default.SecondLanguage;
+        }
+
+        private void SetupEventHandlers()
+        {
             combo_orig.SelectedValueChanged += combo_orig_SelectedIndexChanged;
             combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
             combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
+            FormClosing += MainForm_FormClosing;
+        }
 
-            // タイマーの初期化
+        private void SetupTimer()
+        {
             typingTimer = new System.Windows.Forms.Timer();
             typingTimer.Interval = 1000; // タイマーを1秒に設定
             typingTimer.Tick += TypingTimer_Tick; // タイマーのイベントハンドラを追加
-
             ActiveControl = textbox_orig;
+        }
 
-            // キーボードフックの設定
+        private void SetupKeyboardHook()
+        {
             keyboardProc = new KeyboardProc(KeyboardHookProc);
             using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
             using (var curModule = curProcess.MainModule)
             {
                 hookId = SetWindowsHookEx(13, keyboardProc, LoadLibrary(curModule.ModuleName), 0);
             }
+        }
 
-            // タスクトレイアイコンの初期化
+        private void SetupTrayIcon()
+        {
             trayMenu = new ContextMenuStrip();
             trayMenu.Items.Add("DualDeepLを終了する", null, OnTrayExitClicked);
             trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.Visible = true;
             trayIcon.Click += (sender, args) => ShowWindow();
-
-            // FormClosingイベントにハンドラを追加
-            FormClosing += MainForm_FormClosing;
         }
 
         private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
@@ -102,11 +120,18 @@ namespace DualDeepL
                     {
                         Invoke(new MethodInvoker(() =>
                         {
-                            Show();
-                            WindowState = FormWindowState.Normal;
-                            TopMost = true;
-                            TopMost = false;
-                            textbox_orig.Text = Clipboard.GetText();
+                            try
+                            {
+                                Show();
+                                WindowState = FormWindowState.Normal;
+                                TopMost = true;
+                                TopMost = false;
+                                textbox_orig.Text = Clipboard.GetText();
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorHandler.ShowUserFriendlyError("Clipboard", ex);
+                            }
                         }));
                     }
                     else
@@ -121,11 +146,15 @@ namespace DualDeepL
 
         private async void Translate()
         {
-            if (textbox_orig.Text == string.Empty) return;
+            if (string.IsNullOrWhiteSpace(textbox_orig.Text)) return;
 
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string first = combo_first.SelectedValue?.ToString();
+            string second = combo_second.SelectedValue?.ToString();
+
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(first) || string.IsNullOrEmpty(second))
+                return;
+
             try
             {
                 var translateTask1 = TranslateAsync(orig, first, textbox_orig.Text, Settings.Default.Instruct1, textbox_first);
@@ -134,10 +163,7 @@ namespace DualDeepL
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
@@ -164,8 +190,12 @@ namespace DualDeepL
 
         private async void First_textbox_TextChanged(object sender, EventArgs e)
         {
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string first = combo_first.SelectedValue?.ToString();
+            
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(first) || string.IsNullOrWhiteSpace(textbox_first.Text))
+                return;
+
             try
             {
                 var result = await deepLTranslationService.TranslateAsync(first, orig, textbox_first.Text);
@@ -173,17 +203,18 @@ namespace DualDeepL
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
         private async void Second_textbox_TextChanged(object sender, EventArgs e)
         {
-            string orig = combo_orig.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string second = combo_second.SelectedValue?.ToString();
+            
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(second) || string.IsNullOrWhiteSpace(textbox_second.Text))
+                return;
+
             try
             {
                 var result = await deepLTranslationService.TranslateAsync(second, orig, textbox_second.Text);
@@ -191,10 +222,7 @@ namespace DualDeepL
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
@@ -246,25 +274,47 @@ namespace DualDeepL
 
         private void combo_orig_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void combo_first_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.FirstLanguage = combo_first.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void combo_second_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.SecondLanguage = combo_second.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
+            // Validate API keys are configured
+            ErrorHandler.ValidateApiKeys();
         }
 
         private void ShowWindow()
