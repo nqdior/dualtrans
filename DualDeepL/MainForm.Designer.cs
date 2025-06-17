@@ -48,9 +48,12 @@
             textbox_first = new RichTextBox();
             label_first_arrow = new Label();
             combo_second = new ComboBox();
-            textbox_orig = new RichTextBox();
             combo_orig = new ComboBox();
             panel1 = new Panel();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            textbox_convert = new RichTextBox();
+            textbox_orig = new RichTextBox();
+            label1 = new Label();
             panel_second_top = new Panel();
             button2 = new Button();
             panel_first_top = new Panel();
@@ -63,6 +66,7 @@
             tableLayoutPanel3.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
             panel1.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
             panel_second_top.SuspendLayout();
             panel_first_top.SuspendLayout();
             panel_orig_top.SuspendLayout();
@@ -127,7 +131,7 @@
             tableLayoutPanel3.Controls.Add(textbox_second, 0, 0);
             tableLayoutPanel3.Controls.Add(label_second_arrow, 0, 1);
             tableLayoutPanel3.Dock = DockStyle.Fill;
-            tableLayoutPanel3.Location = new Point(712, 70);
+            tableLayoutPanel3.Location = new Point(712, 103);
             tableLayoutPanel3.Name = "tableLayoutPanel3";
             tableLayoutPanel3.Padding = new Padding(5);
             tableLayoutPanel3.RowCount = 3;
@@ -135,7 +139,7 @@
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel3.Size = new Size(346, 542);
+            tableLayoutPanel3.Size = new Size(346, 509);
             tableLayoutPanel3.TabIndex = 18;
             // 
             // textbox_re_second
@@ -145,12 +149,12 @@
             textbox_re_second.Dock = DockStyle.Fill;
             textbox_re_second.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_re_second.ForeColor = Color.WhiteSmoke;
-            textbox_re_second.Location = new Point(8, 286);
+            textbox_re_second.Location = new Point(8, 269);
             textbox_re_second.Margin = new Padding(3, 2, 3, 2);
             textbox_re_second.Name = "textbox_re_second";
             textbox_re_second.ReadOnly = true;
-            textbox_re_second.Size = new Size(330, 249);
-            textbox_re_second.TabIndex = 4;
+            textbox_re_second.Size = new Size(330, 233);
+            textbox_re_second.TabIndex = 5;
             textbox_re_second.Text = "";
             // 
             // textbox_second
@@ -163,10 +167,10 @@
             textbox_second.Location = new Point(8, 7);
             textbox_second.Margin = new Padding(3, 2, 3, 2);
             textbox_second.Name = "textbox_second";
-            textbox_second.Size = new Size(330, 249);
-            textbox_second.TabIndex = 2;
+            textbox_second.Size = new Size(330, 232);
+            textbox_second.TabIndex = 4;
             textbox_second.Text = "";
-            textbox_second.TextChanged += Second_textbox_TextChanged;
+            textbox_second.TextChanged += textbox_second_TextChanged;
             // 
             // label_second_arrow
             // 
@@ -174,11 +178,11 @@
             label_second_arrow.AutoSize = true;
             label_second_arrow.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             label_second_arrow.ForeColor = Color.WhiteSmoke;
-            label_second_arrow.Location = new Point(8, 258);
+            label_second_arrow.Location = new Point(8, 241);
             label_second_arrow.Name = "label_second_arrow";
             label_second_arrow.Size = new Size(330, 26);
             label_second_arrow.TabIndex = 6;
-            label_second_arrow.Text = "　　対訳";
+            label_second_arrow.Text = "対訳↓";
             label_second_arrow.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // combo_first
@@ -230,7 +234,7 @@
             tableLayoutPanel2.Controls.Add(textbox_first, 0, 0);
             tableLayoutPanel2.Controls.Add(label_first_arrow, 0, 1);
             tableLayoutPanel2.Dock = DockStyle.Fill;
-            tableLayoutPanel2.Location = new Point(361, 70);
+            tableLayoutPanel2.Location = new Point(361, 103);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.Padding = new Padding(5);
             tableLayoutPanel2.RowCount = 3;
@@ -238,7 +242,7 @@
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel2.Size = new Size(345, 542);
+            tableLayoutPanel2.Size = new Size(345, 509);
             tableLayoutPanel2.TabIndex = 17;
             // 
             // textbox_re_first
@@ -248,11 +252,11 @@
             textbox_re_first.Dock = DockStyle.Fill;
             textbox_re_first.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
             textbox_re_first.ForeColor = Color.WhiteSmoke;
-            textbox_re_first.Location = new Point(8, 286);
+            textbox_re_first.Location = new Point(8, 269);
             textbox_re_first.Margin = new Padding(3, 2, 3, 2);
             textbox_re_first.Name = "textbox_re_first";
             textbox_re_first.ReadOnly = true;
-            textbox_re_first.Size = new Size(329, 249);
+            textbox_re_first.Size = new Size(329, 233);
             textbox_re_first.TabIndex = 3;
             textbox_re_first.Text = "";
             // 
@@ -266,10 +270,10 @@
             textbox_first.Location = new Point(8, 7);
             textbox_first.Margin = new Padding(3, 2, 3, 2);
             textbox_first.Name = "textbox_first";
-            textbox_first.Size = new Size(329, 249);
-            textbox_first.TabIndex = 1;
+            textbox_first.Size = new Size(329, 232);
+            textbox_first.TabIndex = 2;
             textbox_first.Text = "";
-            textbox_first.TextChanged += First_textbox_TextChanged;
+            textbox_first.TextChanged += textbox_first_TextChanged;
             // 
             // label_first_arrow
             // 
@@ -277,11 +281,11 @@
             label_first_arrow.AutoSize = true;
             label_first_arrow.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
             label_first_arrow.ForeColor = Color.WhiteSmoke;
-            label_first_arrow.Location = new Point(8, 258);
+            label_first_arrow.Location = new Point(8, 241);
             label_first_arrow.Name = "label_first_arrow";
             label_first_arrow.Size = new Size(329, 26);
             label_first_arrow.TabIndex = 6;
-            label_first_arrow.Text = "　　対訳";
+            label_first_arrow.Text = "対訳↓";
             label_first_arrow.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // combo_second
@@ -298,22 +302,6 @@
             combo_second.Size = new Size(244, 29);
             combo_second.TabIndex = 11;
             combo_second.TabStop = false;
-            // 
-            // textbox_orig
-            // 
-            textbox_orig.BackColor = Color.FromArgb(48, 52, 58);
-            textbox_orig.BorderStyle = BorderStyle.None;
-            textbox_orig.Dock = DockStyle.Fill;
-            textbox_orig.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            textbox_orig.ForeColor = Color.WhiteSmoke;
-            textbox_orig.Location = new Point(5, 5);
-            textbox_orig.Margin = new Padding(0);
-            textbox_orig.Name = "textbox_orig";
-            textbox_orig.Size = new Size(342, 532);
-            textbox_orig.TabIndex = 0;
-            textbox_orig.Text = "";
-            textbox_orig.TextChanged += textbox_orig_TextChanged;
-            textbox_orig.Leave += Orig_textbox_Leave;
             // 
             // combo_orig
             // 
@@ -332,13 +320,74 @@
             // 
             // panel1
             // 
-            panel1.Controls.Add(textbox_orig);
+            panel1.Controls.Add(tableLayoutPanel4);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(3, 70);
+            panel1.Location = new Point(3, 103);
             panel1.Name = "panel1";
             panel1.Padding = new Padding(5);
-            panel1.Size = new Size(352, 542);
+            panel1.Size = new Size(352, 509);
             panel1.TabIndex = 16;
+            // 
+            // tableLayoutPanel4
+            // 
+            tableLayoutPanel4.ColumnCount = 1;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Controls.Add(textbox_convert, 0, 2);
+            tableLayoutPanel4.Controls.Add(textbox_orig, 0, 0);
+            tableLayoutPanel4.Controls.Add(label1, 0, 1);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.Location = new Point(5, 5);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.Padding = new Padding(5);
+            tableLayoutPanel4.RowCount = 3;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 26F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel4.Size = new Size(342, 499);
+            tableLayoutPanel4.TabIndex = 18;
+            // 
+            // textbox_convert
+            // 
+            textbox_convert.BackColor = Color.FromArgb(48, 52, 58);
+            textbox_convert.BorderStyle = BorderStyle.None;
+            textbox_convert.Dock = DockStyle.Fill;
+            textbox_convert.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textbox_convert.ForeColor = Color.WhiteSmoke;
+            textbox_convert.Location = new Point(8, 264);
+            textbox_convert.Margin = new Padding(3, 2, 3, 2);
+            textbox_convert.Name = "textbox_convert";
+            textbox_convert.Size = new Size(326, 228);
+            textbox_convert.TabIndex = 3;
+            textbox_convert.Text = "";
+            // 
+            // textbox_orig
+            // 
+            textbox_orig.BackColor = Color.FromArgb(48, 52, 58);
+            textbox_orig.BorderStyle = BorderStyle.None;
+            textbox_orig.Dock = DockStyle.Fill;
+            textbox_orig.Font = new Font("BIZ UDゴシック", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            textbox_orig.ForeColor = Color.WhiteSmoke;
+            textbox_orig.Location = new Point(8, 7);
+            textbox_orig.Margin = new Padding(3, 2, 3, 2);
+            textbox_orig.Name = "textbox_orig";
+            textbox_orig.Size = new Size(326, 227);
+            textbox_orig.TabIndex = 1;
+            textbox_orig.Text = "";
+            textbox_orig.TextChanged += textbox_orig_TextChanged;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label1.AutoSize = true;
+            label1.Font = new Font("BIZ UDゴシック", 10.5F, FontStyle.Regular, GraphicsUnit.Point);
+            label1.ForeColor = Color.WhiteSmoke;
+            label1.Location = new Point(8, 236);
+            label1.Name = "label1";
+            label1.Size = new Size(326, 26);
+            label1.TabIndex = 6;
+            label1.Text = "プロンプト";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // panel_second_top
             // 
@@ -349,7 +398,7 @@
             panel_second_top.Location = new Point(712, 3);
             panel_second_top.Name = "panel_second_top";
             panel_second_top.Padding = new Padding(0, 5, 10, 5);
-            panel_second_top.Size = new Size(346, 61);
+            panel_second_top.Size = new Size(346, 94);
             panel_second_top.TabIndex = 14;
             // 
             // button2
@@ -357,11 +406,11 @@
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button2.FlatStyle = FlatStyle.Flat;
             button2.ForeColor = SystemColors.ButtonHighlight;
-            button2.Location = new Point(245, -9);
+            button2.Location = new Point(223, 49);
             button2.Name = "button2";
-            button2.Size = new Size(91, 23);
+            button2.Size = new Size(110, 29);
             button2.TabIndex = 12;
-            button2.Text = "翻訳指示";
+            button2.Text = "翻訳指示2";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
@@ -374,7 +423,7 @@
             panel_first_top.Location = new Point(361, 3);
             panel_first_top.Name = "panel_first_top";
             panel_first_top.Padding = new Padding(0, 5, 10, 5);
-            panel_first_top.Size = new Size(345, 61);
+            panel_first_top.Size = new Size(345, 94);
             panel_first_top.TabIndex = 12;
             // 
             // button1
@@ -382,11 +431,11 @@
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button1.FlatStyle = FlatStyle.Flat;
             button1.ForeColor = SystemColors.ButtonHighlight;
-            button1.Location = new Point(244, -9);
+            button1.Location = new Point(218, 49);
             button1.Name = "button1";
-            button1.Size = new Size(91, 23);
+            button1.Size = new Size(114, 29);
             button1.TabIndex = 10;
-            button1.Text = "翻訳指示";
+            button1.Text = "翻訳指示1";
             button1.UseVisualStyleBackColor = true;
             button1.Click += button1_Click;
             // 
@@ -398,7 +447,7 @@
             panel_orig_top.Location = new Point(3, 3);
             panel_orig_top.Name = "panel_orig_top";
             panel_orig_top.Padding = new Padding(0, 5, 10, 5);
-            panel_orig_top.Size = new Size(352, 61);
+            panel_orig_top.Size = new Size(352, 94);
             panel_orig_top.TabIndex = 11;
             // 
             // tableLayoutPanel1
@@ -417,7 +466,7 @@
             tableLayoutPanel1.Location = new Point(0, 41);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
             tableLayoutPanel1.RowCount = 2;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 67F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Size = new Size(1061, 615);
             tableLayoutPanel1.TabIndex = 10;
@@ -439,6 +488,7 @@
             Font = new Font("BIZ UDゴシック", 9F, FontStyle.Regular, GraphicsUnit.Point);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(3, 2, 3, 2);
+            MinimumSize = new Size(1083, 712);
             Name = "MainForm";
             Text = "Dual DeepL Translater";
             FormClosing += MainForm_FormClosing;
@@ -451,6 +501,8 @@
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
             panel1.ResumeLayout(false);
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
             panel_second_top.ResumeLayout(false);
             panel_second_top.PerformLayout();
             panel_first_top.ResumeLayout(false);
@@ -477,7 +529,6 @@
         private RichTextBox textbox_first;
         private Label label_first_arrow;
         private ComboBox combo_second;
-        private RichTextBox textbox_orig;
         private ComboBox combo_orig;
         private Panel panel1;
         private Panel panel_second_top;
@@ -488,5 +539,9 @@
         private Button button1;
         private Button button2;
         private NotifyIcon trayIcon;
+        private TableLayoutPanel tableLayoutPanel4;
+        private RichTextBox textbox_convert;
+        private RichTextBox textbox_orig;
+        private Label label1;
     }
 }
