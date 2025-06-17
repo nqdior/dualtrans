@@ -24,8 +24,8 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="Prompt" Type="System.String" Scope="User">
-      <Value Profile="(Default)">"マンガのキャラクターのセリフを翻訳したい。以下の文章を、可能な限り原文のニュアンスを踏まえて{source}から{target}へ翻訳してください。
-ただし、#固有名詞 に記載された特定用語・固有名詞は英語表記を優先し、示すとおりに訳してください。:"</Value>
+      <Value Profile="(Default)">マンガのキャラクターのセリフを翻訳したい。以下の文章を、可能な限り原文のニュアンスを踏まえて{source}から{target}へ翻訳してください。
+ただし、#固有名詞 に記載された特定用語・固有名詞は英語表記を優先し、示すとおりに訳してください。</Value>
     </Setting>
   </Settings>
 </SettingsFile>
