@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="APIKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)">sk-proj-Xgpn2ezpEwiXe5cRHOloT3BlbkFJu6s8SO7dq4IBWTv9iGwd</Value>
+      <Value Profile="(Default)"></Value>
     </Setting>
     <Setting Name="Instruct1" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
