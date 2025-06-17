@@ -7,21 +7,31 @@ namespace DualDeepL.Utils
         // Modern color palette as requested in the issue
         public static class Colors
         {
-            // Background colors
+            // Dark theme colors (default)
             public static readonly Color DarkBackground = Color.FromArgb(30, 30, 46);     // #1e1e2e
             public static readonly Color CardBackground = Color.FromArgb(49, 50, 68);     // #313244 (slightly lighter for cards)
             public static readonly Color InputBackground = Color.FromArgb(56, 58, 80);    // #383a50 (for text inputs)
             
-            // Main colors
+            // Light theme colors (for future theme switching)
+            public static readonly Color LightBackground = Color.FromArgb(248, 250, 252); // #f8fafc
+            public static readonly Color LightCardBackground = Color.FromArgb(255, 255, 255); // #ffffff
+            public static readonly Color LightInputBackground = Color.FromArgb(241, 245, 249); // #f1f5f9
+            
+            // Main colors (work for both themes)
             public static readonly Color IndigoMain = Color.FromArgb(79, 70, 229);        // #4f46e5
             public static readonly Color IndigoHover = Color.FromArgb(99, 90, 249);       // #6366f1
             public static readonly Color EmeraldAccent = Color.FromArgb(16, 185, 129);    // #10b981
             public static readonly Color EmeraldHover = Color.FromArgb(20, 220, 160);     // #14dca0
             
-            // Text colors
+            // Text colors (dark theme)
             public static readonly Color PrimaryText = Color.FromArgb(241, 245, 249);     // #f1f5f9 (slate-100)
             public static readonly Color SecondaryText = Color.FromArgb(148, 163, 184);   // #94a3b8 (slate-400)
             public static readonly Color MutedText = Color.FromArgb(100, 116, 139);       // #64748b (slate-500)
+            
+            // Text colors (light theme)
+            public static readonly Color LightPrimaryText = Color.FromArgb(15, 23, 42);   // #0f172a (slate-900)
+            public static readonly Color LightSecondaryText = Color.FromArgb(71, 85, 105); // #475569 (slate-600)
+            public static readonly Color LightMutedText = Color.FromArgb(100, 116, 139);  // #64748b (slate-500)
             
             // Border and separator colors
             public static readonly Color Border = Color.FromArgb(71, 85, 105);            // #475569 (slate-600)

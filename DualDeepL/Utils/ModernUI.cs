@@ -70,10 +70,38 @@ namespace DualDeepL.Utils
             if (textControl is RichTextBox richTextBox)
             {
                 richTextBox.BorderStyle = BorderStyle.None;
+                
+                // Add focus effects
+                richTextBox.Enter += (s, e) =>
+                {
+                    richTextBox.BackColor = Color.FromArgb(
+                        Math.Min(255, ModernTheme.Colors.InputBackground.R + 10),
+                        Math.Min(255, ModernTheme.Colors.InputBackground.G + 10),
+                        Math.Min(255, ModernTheme.Colors.InputBackground.B + 10)
+                    );
+                };
+                richTextBox.Leave += (s, e) =>
+                {
+                    richTextBox.BackColor = ModernTheme.Colors.InputBackground;
+                };
             }
             else if (textControl is TextBox textBox)
             {
                 textBox.BorderStyle = BorderStyle.None;
+                
+                // Add focus effects
+                textBox.Enter += (s, e) =>
+                {
+                    textBox.BackColor = Color.FromArgb(
+                        Math.Min(255, ModernTheme.Colors.InputBackground.R + 10),
+                        Math.Min(255, ModernTheme.Colors.InputBackground.G + 10),
+                        Math.Min(255, ModernTheme.Colors.InputBackground.B + 10)
+                    );
+                };
+                textBox.Leave += (s, e) =>
+                {
+                    textBox.BackColor = ModernTheme.Colors.InputBackground;
+                };
             }
         }
 
@@ -147,6 +175,61 @@ namespace DualDeepL.Utils
             comboBox.Font = ModernTheme.Fonts.PrimaryFont;
             comboBox.FlatStyle = FlatStyle.Flat;
             comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            
+            // Add hover effects
+            comboBox.MouseEnter += (s, e) =>
+            {
+                comboBox.BackColor = Color.FromArgb(
+                    Math.Min(255, ModernTheme.Colors.InputBackground.R + 15),
+                    Math.Min(255, ModernTheme.Colors.InputBackground.G + 15),
+                    Math.Min(255, ModernTheme.Colors.InputBackground.B + 15)
+                );
+            };
+            comboBox.MouseLeave += (s, e) =>
+            {
+                comboBox.BackColor = ModernTheme.Colors.InputBackground;
+            };
+        }
+        
+        /// <summary>
+        /// Applies modern check box styling
+        /// </summary>
+        public static void ApplyCheckBoxStyle(CheckBox checkBox)
+        {
+            checkBox.ForeColor = ModernTheme.Colors.PrimaryText;
+            checkBox.Font = ModernTheme.Fonts.PrimaryFont;
+            checkBox.UseVisualStyleBackColor = true;
+        }
+        
+        /// <summary>
+        /// Creates modern tooltips for controls
+        /// </summary>
+        public static ToolTip CreateModernToolTip()
+        {
+            var toolTip = new ToolTip();
+            toolTip.BackColor = ModernTheme.Colors.CardBackground;
+            toolTip.ForeColor = ModernTheme.Colors.PrimaryText;
+            toolTip.OwnerDraw = true;
+            toolTip.Draw += (sender, e) =>
+            {
+                // Draw custom tooltip background
+                e.Graphics.FillRectangle(new SolidBrush(ModernTheme.Colors.CardBackground), e.Bounds);
+                e.Graphics.DrawRectangle(new Pen(ModernTheme.Colors.Border), e.Bounds);
+                
+                // Draw text
+                TextRenderer.DrawText(e.Graphics, e.ToolTipText, ModernTheme.Fonts.SmallFont,
+                    e.Bounds, ModernTheme.Colors.PrimaryText, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
+            return toolTip;
+        }
+        
+        /// <summary>
+        /// Adds modern hover effects to a control
+        /// </summary>
+        public static void AddHoverEffect(Control control, Color normalColor, Color hoverColor)
+        {
+            control.MouseEnter += (s, e) => control.BackColor = hoverColor;
+            control.MouseLeave += (s, e) => control.BackColor = normalColor;
         }
     }
 }

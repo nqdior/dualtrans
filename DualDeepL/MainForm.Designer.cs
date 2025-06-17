@@ -19,7 +19,8 @@ namespace DualDeepL
             {
                 if (components != null) components.Dispose();
                 UnhookWindowsHookEx(hookId);
-                trayIcon.Dispose();
+                trayIcon?.Dispose();
+                modernToolTip?.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -33,6 +33,7 @@ namespace DualDeepL
 
         // タスクトレイアイコン
         private ContextMenuStrip trayMenu;
+        private ToolTip modernToolTip;
 
         public MainForm()
         {
@@ -47,6 +48,7 @@ namespace DualDeepL
             SetupTimer();
             SetupKeyboardHook();
             SetupTrayIcon();
+            SetupTooltips();
         }
 
         private void SetupLanguageComboBoxes()
@@ -78,6 +80,20 @@ namespace DualDeepL
             combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
             combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
             FormClosing += MainForm_FormClosing;
+            
+            // Add keyboard shortcuts
+            textbox_orig.KeyDown += TextboxOrig_KeyDown;
+            this.KeyPreview = true;
+        }
+        
+        private void TextboxOrig_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Ctrl+Enter triggers translation
+            if (e.Control && e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                Translate();
+            }
         }
 
         private void SetupTimer()
@@ -105,6 +121,20 @@ namespace DualDeepL
             trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.Visible = true;
             trayIcon.Click += (sender, args) => ShowWindow();
+        }
+        
+        private void SetupTooltips()
+        {
+            modernToolTip = ModernUI.CreateModernToolTip();
+            
+            // Add helpful tooltips
+            modernToolTip.SetToolTip(textbox_orig, "原文を入力してください。Ctrl+Enterで翻訳を実行できます。");
+            modernToolTip.SetToolTip(button1, "訳文１の翻訳指示を設定");
+            modernToolTip.SetToolTip(button2, "訳文２の翻訳指示を設定");
+            modernToolTip.SetToolTip(checkBox1, "ウィンドウを最前面に固定");
+            modernToolTip.SetToolTip(combo_orig, "原文の言語を選択");
+            modernToolTip.SetToolTip(combo_first, "訳文１の言語を選択");
+            modernToolTip.SetToolTip(combo_second, "訳文２の言語を選択");
         }
 
         private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
@@ -342,6 +372,12 @@ namespace DualDeepL
             ModernUI.ApplyComboBoxStyle(combo_first);
             ModernUI.ApplyComboBoxStyle(combo_second);
             
+            // Apply checkbox style
+            ModernUI.ApplyCheckBoxStyle(checkBox1);
+            
+            // Enhance label styling
+            ApplyLabelStyling();
+            
             // Create modern flow indicators
             ModernUI.CreateFlowIndicator(label_first_arrow, "↓ 対訳 ↓");
             ModernUI.CreateFlowIndicator(label_second_arrow, "↓ 対訳 ↓");
@@ -354,6 +390,70 @@ namespace DualDeepL
             this.BackColor = ModernTheme.Colors.DarkBackground;
             panel_top.BackColor = ModernTheme.Colors.DarkBackground;
             tableLayoutPanel1.BackColor = ModernTheme.Colors.DarkBackground;
+            
+            // Add subtle shadow effect to main panels
+            AddPanelShadowEffects();
+        }
+        
+        private void ApplyLabelStyling()
+        {
+            // Enhance header labels with modern styling
+            label_orig.Font = ModernTheme.Fonts.HeaderFont;
+            label_orig.ForeColor = ModernTheme.Colors.PrimaryText;
+            
+            label_first.Font = ModernTheme.Fonts.HeaderFont;
+            label_first.ForeColor = ModernTheme.Colors.PrimaryText;
+            
+            label_second.Font = ModernTheme.Fonts.HeaderFont;
+            label_second.ForeColor = ModernTheme.Colors.PrimaryText;
+            
+            // Add subtle background to make headers stand out
+            foreach (var label in new[] { label_orig, label_first, label_second })
+            {
+                label.BackColor = Color.Transparent;
+                label.Paint += (sender, e) =>
+                {
+                    // Draw a subtle underline
+                    using (var pen = new Pen(ModernTheme.Colors.EmeraldAccent, 2))
+                    {
+                        e.Graphics.DrawLine(pen, 
+                            ModernTheme.Spacing.Medium, 
+                            label.Height - 2, 
+                            label.Width - ModernTheme.Spacing.Medium, 
+                            label.Height - 2);
+                    }
+                };
+            }
+        }
+        
+        private void AddPanelShadowEffects()
+        {
+            // Add subtle elevation to main content panels for better visual hierarchy
+            foreach (Control control in tableLayoutPanel1.Controls)
+            {
+                if (control is Panel panel && panel != panel_top)
+                {
+                    // Add a subtle border for better definition
+                    panel.Paint += (sender, e) =>
+                    {
+                        using (var pen = new Pen(ModernTheme.Colors.Border, 1))
+                        {
+                            e.Graphics.DrawRectangle(pen, 0, 0, panel.Width - 1, panel.Height - 1);
+                        }
+                    };
+                }
+                else if (control is TableLayoutPanel tablePanel)
+                {
+                    // Add border to table layout panels
+                    tablePanel.Paint += (sender, e) =>
+                    {
+                        using (var pen = new Pen(ModernTheme.Colors.Border, 1))
+                        {
+                            e.Graphics.DrawRectangle(pen, 0, 0, tablePanel.Width - 1, tablePanel.Height - 1);
+                        }
+                    };
+                }
+            }
         }
 
         private void ShowWindow()
