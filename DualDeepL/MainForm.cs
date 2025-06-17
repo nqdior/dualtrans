@@ -313,6 +313,47 @@ namespace DualDeepL
         {
             // Validate API keys are configured
             ErrorHandler.ValidateApiKeys();
+            
+            // Apply modern UI styling
+            ApplyModernStyling();
+        }
+        
+        private void ApplyModernStyling()
+        {
+            // Apply modern button styles
+            ModernUI.ApplyModernButtonStyle(button1, true);  // Primary button
+            ModernUI.ApplyModernButtonStyle(button2, true);  // Primary button
+            
+            // Apply card styles to main panels
+            ModernUI.ApplyCardStyle(panel1);
+            ModernUI.ApplyCardStyle(panel_orig_top);
+            ModernUI.ApplyCardStyle(panel_first_top);
+            ModernUI.ApplyCardStyle(panel_second_top);
+            
+            // Apply input styles to text controls
+            ModernUI.ApplyInputStyle(textbox_orig);
+            ModernUI.ApplyInputStyle(textbox_first);
+            ModernUI.ApplyInputStyle(textbox_second);
+            ModernUI.ApplyInputStyle(textbox_re_first);
+            ModernUI.ApplyInputStyle(textbox_re_second);
+            
+            // Apply combo box styles
+            ModernUI.ApplyComboBoxStyle(combo_orig);
+            ModernUI.ApplyComboBoxStyle(combo_first);
+            ModernUI.ApplyComboBoxStyle(combo_second);
+            
+            // Create modern flow indicators
+            ModernUI.CreateFlowIndicator(label_first_arrow, "↓ 対訳 ↓");
+            ModernUI.CreateFlowIndicator(label_second_arrow, "↓ 対訳 ↓");
+            
+            // Apply additional card styling to table layout panels
+            tableLayoutPanel2.BackColor = ModernTheme.Colors.CardBackground;
+            tableLayoutPanel3.BackColor = ModernTheme.Colors.CardBackground;
+            
+            // Make sure the background gradient is applied
+            this.BackColor = ModernTheme.Colors.DarkBackground;
+            panel_top.BackColor = ModernTheme.Colors.DarkBackground;
+            tableLayoutPanel1.BackColor = ModernTheme.Colors.DarkBackground;
         }
 
         private void ShowWindow()

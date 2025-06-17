@@ -1,4 +1,5 @@
 ﻿using DualDeepL.Properties;
+using DualDeepL.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,6 +30,26 @@ namespace DualDeepL
         private void InstructionForm_Load(object sender, EventArgs e)
         {
             textbox_instruct.Text = Settings.Default[$"Instruct{this.dialogKey}"].ToString();
+            
+            // Apply modern styling
+            ApplyModernStyling();
+        }
+        
+        private void ApplyModernStyling()
+        {
+            // Apply modern button styles
+            ModernUI.ApplyModernButtonStyle(button1, true);  // Save button - primary
+            ModernUI.ApplyModernButtonStyle(button2, false); // Cancel button - secondary
+            
+            // Apply card styles to panels
+            ModernUI.ApplyCardStyle(panel1);
+            ModernUI.ApplyCardStyle(panel2);
+            
+            // Apply input style to text area
+            ModernUI.ApplyInputStyle(textbox_instruct);
+            
+            // Ensure consistent theming
+            this.BackColor = ModernTheme.Colors.DarkBackground;
         }
 
         private void Button1_Click(object sender, EventArgs e)
