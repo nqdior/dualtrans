@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="APIKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">sk-proj-Xgpn2ezpEwiXe5cRHOloT3BlbkFJu6s8SO7dq4IBWTv9iGwd</Value>
     </Setting>
     <Setting Name="Instruct1" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -12,7 +12,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="DeepLKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">fd0a929f-4397-31fc-964c-934271821c36:fx</Value>
     </Setting>
     <Setting Name="FirstLanguage" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -22,6 +22,10 @@
     </Setting>
     <Setting Name="OriginalLanguage" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Prompt" Type="System.String" Scope="User">
+      <Value Profile="(Default)">"マンガのキャラクターのセリフを翻訳したい。以下の文章を、可能な限り原文のニュアンスを踏まえて{source}から{target}へ翻訳してください。
+ただし、#固有名詞 に記載された特定用語・固有名詞は英語表記を優先し、示すとおりに訳してください。:"</Value>
     </Setting>
   </Settings>
 </SettingsFile>

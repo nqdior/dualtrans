@@ -2,15 +2,16 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>deepl_logo_icon_170284_256.ico</ApplicationIcon>
+    <ApplicationIcon>tray_dark.ico</ApplicationIcon>
+    <IsPublishable>False</IsPublishable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="deepl_logo_icon_170284_256.ico" />
+    <Content Include="tray_dark.ico" />
   </ItemGroup>
 
   <ItemGroup>

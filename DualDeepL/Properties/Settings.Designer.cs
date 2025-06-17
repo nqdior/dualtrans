@@ -25,7 +25,7 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sk-proj-Xgpn2ezpEwiXe5cRHOloT3BlbkFJu6s8SO7dq4IBWTv9iGwd")]
         public string APIKey {
             get {
                 return ((string)(this["APIKey"]));
@@ -61,7 +61,7 @@ namespace DualDeepL.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("fd0a929f-4397-31fc-964c-934271821c36:fx")]
         public string DeepLKey {
             get {
                 return ((string)(this["DeepLKey"]));
@@ -104,6 +104,19 @@ namespace DualDeepL.Properties {
             }
             set {
                 this["OriginalLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\"マンガのキャラクターのセリフを翻訳したい。以下の文章を、可能な限り原文のニュアンスを踏まえて{source}から{target}へ翻訳してください。\r\nただし、" +
+            "#固有名詞 に記載された特定用語・固有名詞は英語表記を優先し、示すとおりに訳してください。:\"")]
+        public string Prompt {
+            get {
+                return ((string)(this["Prompt"]));
+            }
+            set {
+                this["Prompt"] = value;
             }
         }
     }
