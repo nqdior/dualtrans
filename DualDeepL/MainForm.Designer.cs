@@ -357,7 +357,7 @@
             button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button2.FlatStyle = FlatStyle.Flat;
             button2.ForeColor = SystemColors.ButtonHighlight;
-            button2.Location = new Point(245, -9);
+            button2.Location = new Point(245, 33);
             button2.Name = "button2";
             button2.Size = new Size(91, 23);
             button2.TabIndex = 12;
@@ -382,7 +382,7 @@
             button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button1.FlatStyle = FlatStyle.Flat;
             button1.ForeColor = SystemColors.ButtonHighlight;
-            button1.Location = new Point(244, -9);
+            button1.Location = new Point(244, 33);
             button1.Name = "button1";
             button1.Size = new Size(91, 23);
             button1.TabIndex = 10;

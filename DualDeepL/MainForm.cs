@@ -1,20 +1,19 @@
 using DualDeepL.Properties;
-using System.Collections.ObjectModel;
-using System.Net.Http.Headers;
-using System.Resources;
+using DualDeepL.Models;
+using DualDeepL.Services;
+using DualDeepL.Utils;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace DualDeepL
 {
     public partial class MainForm : Form
     {
         private System.Windows.Forms.Timer typingTimer;
+        private readonly ITranslationService openAITranslationService;
+        private readonly ITranslationService deepLTranslationService;
 
-        // ƒL[ƒ{[ƒhƒtƒbƒN‚ÉŠÖ‚·‚é’è‹`
+        // ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ãƒ•ãƒƒã‚¯ã«é–¢ã™ã‚‹å®£è¨€
         [DllImport("user32.dll")]
         private static extern IntPtr SetWindowsHookEx(int idHook, KeyboardProc callback, IntPtr hInstance, uint threadId);
         [DllImport("user32.dll")]
@@ -28,100 +27,84 @@ namespace DualDeepL
         private KeyboardProc keyboardProc;
         private IntPtr hookId = IntPtr.Zero;
 
-        // ƒL[ŠÄ‹—p•Ï”
+        // ã‚­ãƒ¼å‡¦ç†ç”¨å¤‰æ•°
         private bool isCPressedOnce = false;
         private DateTime lastCPressTime;
 
-        // ƒ^ƒXƒNƒgƒŒƒCƒAƒCƒRƒ“
+        // ã‚¿ã‚¹ã‚¯ãƒˆãƒ¬ã‚¤ã‚¢ã‚¤ã‚³ãƒ³
         private ContextMenuStrip trayMenu;
-
-
-        readonly List<ItemSet> src = new()
-        {
-                new ItemSet("BG", "ƒuƒ‹ƒKƒŠƒAŒê"),
-                new ItemSet("CS", "ƒ`ƒFƒRŒê"),
-                new ItemSet("DA", "ƒfƒ“ƒ}[ƒNŒê"),
-                new ItemSet("DE", "ƒhƒCƒcŒê"),
-                new ItemSet("EL", "ƒMƒŠƒVƒƒŒê"),
-                new ItemSet("EN", "‰pŒê"),
-                // new ItemSet("EN-GB", "‰pŒê (ƒCƒMƒŠƒX)"),
-                // new ItemSet("EN-US", "‰pŒê (ƒAƒƒŠƒJ)"),
-                new ItemSet("ES", "ƒXƒyƒCƒ“Œê"),
-                new ItemSet("ET", "ƒGƒXƒgƒjƒAŒê"),
-                new ItemSet("FI", "ƒtƒBƒ“ƒ‰ƒ“ƒhŒê"),
-                new ItemSet("FR", "ƒtƒ‰ƒ“ƒXŒê"),
-                new ItemSet("HU", "ƒnƒ“ƒKƒŠ[Œê"),
-                new ItemSet("ID", "ƒCƒ“ƒhƒlƒVƒAŒê"),
-                new ItemSet("IT", "ƒCƒ^ƒŠƒAŒê"),
-                new ItemSet("JA", "“ú–{Œê"),
-                new ItemSet("KO", "ŠØ‘Œê"),
-                new ItemSet("LT", "ƒŠƒgƒAƒjƒAŒê"),
-                new ItemSet("LV", "ƒ‰ƒgƒrƒAŒê"),
-                new ItemSet("NB", "ƒmƒ‹ƒEƒF[Œê"),
-                new ItemSet("NL", "ƒIƒ‰ƒ“ƒ_‚Ì"),
-                new ItemSet("PL", "ƒ|[ƒ‰ƒ“ƒhŒê"),
-                new ItemSet("PT-BR", "ƒ|ƒ‹ƒgƒKƒ‹Œê (ƒuƒ‰ƒWƒ‹)"),
-                new ItemSet("PT-PT", "ƒ|ƒ‹ƒgƒKƒ‹Œê"),
-                new ItemSet("RO", "ƒ‹[ƒ}ƒjƒAŒê"),
-                new ItemSet("RU", "ƒƒVƒAŒê"),
-                new ItemSet("SK", "ƒXƒƒoƒLƒAŒê"),
-                new ItemSet("SL", "ƒXƒƒxƒjƒAŒê"),
-                new ItemSet("SV", "ƒXƒEƒF[ƒfƒ“Œê"),
-                new ItemSet("TR", "ƒgƒ‹ƒRŒê"),
-                new ItemSet("UK", "ƒEƒNƒ‰ƒCƒiŒê"),
-                new ItemSet("ZH", "’†‘ŒêiŠÈ‘Ìšj")
-            };
 
         public MainForm()
         {
             InitializeComponent();
+            
+            // Initialize readonly services
+            openAITranslationService = new OpenAITranslationService();
+            deepLTranslationService = new DeepLTranslationService();
+            
+            SetupLanguageComboBoxes();
+            SetupEventHandlers();
+            SetupTimer();
+            SetupKeyboardHook();
+            SetupTrayIcon();
+        }
 
-            List<ItemSet> src2 = new(src);
-            List<ItemSet> src3 = new(src);
+        private void SetupLanguageComboBoxes()
+        {
+            var languages1 = LanguageManager.GetLanguages();
+            var languages2 = LanguageManager.GetLanguages();
+            var languages3 = LanguageManager.GetLanguages();
 
-            combo_orig.DataSource = src;
+            combo_orig.DataSource = languages1;
             combo_orig.DisplayMember = "Display";
             combo_orig.ValueMember = "LangCode";
 
-            combo_first.DataSource = src2;
+            combo_first.DataSource = languages2;
             combo_first.DisplayMember = "Display";
             combo_first.ValueMember = "LangCode";
 
-            combo_second.DataSource = src3;
+            combo_second.DataSource = languages3;
             combo_second.DisplayMember = "Display";
             combo_second.ValueMember = "LangCode";
 
             combo_orig.SelectedIndex = Settings.Default.OriginalLanguage;
             combo_first.SelectedIndex = Settings.Default.FirstLanguage;
             combo_second.SelectedIndex = Settings.Default.SecondLanguage;
+        }
+
+        private void SetupEventHandlers()
+        {
             combo_orig.SelectedValueChanged += combo_orig_SelectedIndexChanged;
             combo_first.SelectedIndexChanged += combo_first_SelectedIndexChanged;
             combo_second.SelectedIndexChanged += combo_second_SelectedIndexChanged;
+            FormClosing += MainForm_FormClosing;
+        }
 
-            // ƒ^ƒCƒ}[‚Ì‰Šú‰»
+        private void SetupTimer()
+        {
             typingTimer = new System.Windows.Forms.Timer();
-            typingTimer.Interval = 1000; // ƒ^ƒCƒ}[‚ğ1•b‚Éİ’è
-            typingTimer.Tick += TypingTimer_Tick; // ƒ^ƒCƒ}[‚ÌƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰‚ğ’Ç‰Á
-
+            typingTimer.Interval = 1000; // ã‚¿ã‚¤ãƒãƒ¼ã‚’1ç§’ã«è¨­å®š
+            typingTimer.Tick += TypingTimer_Tick; // ã‚¿ã‚¤ãƒãƒ¼ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ã‚’è¿½åŠ 
             ActiveControl = textbox_orig;
+        }
 
-            // ƒL[ƒ{[ƒhƒtƒbƒN‚Ìİ’è
+        private void SetupKeyboardHook()
+        {
             keyboardProc = new KeyboardProc(KeyboardHookProc);
             using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
             using (var curModule = curProcess.MainModule)
             {
                 hookId = SetWindowsHookEx(13, keyboardProc, LoadLibrary(curModule.ModuleName), 0);
             }
+        }
 
-            // ƒ^ƒXƒNƒgƒŒƒCƒAƒCƒRƒ“‚Ì‰Šú‰»
+        private void SetupTrayIcon()
+        {
             trayMenu = new ContextMenuStrip();
-            trayMenu.Items.Add("DualDeepL‚ğI—¹‚·‚é", null, OnTrayExitClicked);
+            trayMenu.Items.Add("DualDeepLã‚’çµ‚äº†ã™ã‚‹", null, OnTrayExitClicked);
             trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.Visible = true;
             trayIcon.Click += (sender, args) => ShowWindow();
-
-            // FormClosingƒCƒxƒ“ƒg‚Éƒnƒ“ƒhƒ‰‚ğ’Ç‰Á
-            FormClosing += MainForm_FormClosing;
         }
 
         private IntPtr KeyboardHookProc(int nCode, int wParam, IntPtr lParam)
@@ -135,11 +118,18 @@ namespace DualDeepL
                     {
                         Invoke(new MethodInvoker(() =>
                         {
-                            Show();
-                            WindowState = FormWindowState.Normal;
-                            TopMost = true;
-                            TopMost = false;
-                            textbox_orig.Text = Clipboard.GetText();
+                            try
+                            {
+                                Show();
+                                WindowState = FormWindowState.Normal;
+                                TopMost = true;
+                                TopMost = false;
+                                textbox_orig.Text = Clipboard.GetText();
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorHandler.ShowUserFriendlyError("Clipboard", ex);
+                            }
                         }));
                     }
                     else
@@ -154,23 +144,24 @@ namespace DualDeepL
 
         private async void Translate()
         {
-            if (textbox_orig.Text == string.Empty) return;
+            if (string.IsNullOrWhiteSpace(textbox_orig.Text)) return;
 
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string first = combo_first.SelectedValue?.ToString();
+            string second = combo_second.SelectedValue?.ToString();
+
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(first) || string.IsNullOrEmpty(second))
+                return;
+
             try
             {
-                var translateTask1 = Translate(orig, first, textbox_orig, textbox_first, Settings.Default.Instruct1);
-                var translateTask2 = Translate(orig, second, textbox_orig, textbox_second, Settings.Default.Instruct2);
+                var translateTask1 = TranslateAsync(orig, first, textbox_orig.Text, Settings.Default.Instruct1, textbox_first);
+                var translateTask2 = TranslateAsync(orig, second, textbox_orig.Text, Settings.Default.Instruct2, textbox_second);
                 await Task.WhenAll(translateTask1, translateTask2);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
@@ -181,133 +172,73 @@ namespace DualDeepL
 
         private void textbox_orig_TextChanged(object sender, EventArgs e)
         {
-            // ƒeƒLƒXƒg‚ª•ÏX‚³‚ê‚é‚½‚Ñ‚Éƒ^ƒCƒ}[‚ğƒŠƒZƒbƒg
+            // ãƒ†ã‚­ã‚¹ãƒˆãŒå¤‰æ›´ã•ã‚Œã‚‹åº¦ã«ã‚¿ã‚¤ãƒãƒ¼ã‚’ãƒªã‚»ãƒƒãƒˆ
             typingTimer.Stop();
             typingTimer.Start();
         }
+
         private void TypingTimer_Tick(object sender, EventArgs e)
         {
-            // ƒ^ƒCƒ}[‚ª”­‰Î‚µ‚½‚çAƒ^ƒCƒsƒ“ƒO‚ªI—¹‚µ‚½‚Æ‚İ‚È‚·
+            // ã‚¿ã‚¤ãƒãƒ¼ãŒä½œå‹•ã—ãŸã‚‰ã€ã‚¿ã‚¤ãƒ”ãƒ³ã‚°ãŒçµ‚äº†ã—ãŸã¨ã¿ãªã™
             typingTimer.Stop();
             Console.WriteLine("Typing finished.");
-            // ƒ^ƒCƒsƒ“ƒOI—¹Œã‚Ìˆ—‚ğ‚±‚±‚É‹Lq
+            // ã‚¿ã‚¤ãƒ”ãƒ³ã‚°çµ‚äº†ã®å‡¦ç†ã‚’ã“ã“ã«è¨˜è¿°
             Translate();
         }
 
         private async void First_textbox_TextChanged(object sender, EventArgs e)
         {
-            string orig = combo_orig.SelectedValue.ToString();
-            string first = combo_first.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string first = combo_first.SelectedValue?.ToString();
+            
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(first) || string.IsNullOrWhiteSpace(textbox_first.Text))
+                return;
+
             try
             {
-                await Translate_DeepL(first, orig, textbox_first, textbox_re_first);
+                var result = await deepLTranslationService.TranslateAsync(first, orig, textbox_first.Text);
+                textbox_re_first.Text = result;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
         private async void Second_textbox_TextChanged(object sender, EventArgs e)
         {
-            string orig = combo_orig.SelectedValue.ToString();
-            string second = combo_second.SelectedValue.ToString();
+            string orig = combo_orig.SelectedValue?.ToString();
+            string second = combo_second.SelectedValue?.ToString();
+            
+            if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(second) || string.IsNullOrWhiteSpace(textbox_second.Text))
+                return;
+
             try
             {
-                await Translate_DeepL(second, orig, textbox_second, textbox_re_second);
+                var result = await deepLTranslationService.TranslateAsync(second, orig, textbox_second.Text);
+                textbox_re_second.Text = result;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException
-                    + Environment.NewLine + ex.Message
-                    + Environment.NewLine + ex.StackTrace
-                    + Environment.NewLine + ex.HelpLink);
+                ErrorHandler.ShowUserFriendlyError("Translation", ex);
             }
         }
 
-
-        #region gpt engine
-
-        public async Task Translate(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox, string instruct_text = "")
+        private async Task TranslateAsync(string sourceLang, string targetLang, string text, string instruction, RichTextBox outputTextBox)
         {
             try
             {
                 Cursor.Current = Cursors.WaitCursor;
-
-                var api = new OpenAI_API.OpenAIAPI(Settings.Default.APIKey);
-                var chat = api.Chat.CreateConversation();
-                chat.Model.ModelID = "gpt-4o-2024-05-13";
-
-                var sourceLangCaption = src.First(r => r.LangCode.Equals(sourceLang)).Display;
-                var targetLangCaption = src.First(r => r.LangCode.Equals(targetLang)).Display;
-
-                var prompt = $@"ˆÈ‰º‚Ì•¶Í‚ğA{sourceLangCaption}‚©‚ç{targetLangCaption}‚Ö–|–ó‚µ‚Ä‚­‚¾‚³‚¢B:" + Environment.NewLine;
-                prompt += $"{input_textbox.Text}";
-
-                if (instruct_text != "")
-                {
-                    prompt = $@"#Œ´•¶ ‚É‚ ‚é{sourceLangCaption}‚Ì•¶Í‚ğ{targetLangCaption}‚Ö–|–ó‚µ‚Ä‚­‚¾‚³‚¢B
-–ó•¶‚Ì•\‹L‚Í #•\‹Lƒ‹[ƒ‹ ‚É‘‚©‚ê‚½w¦‚É]‚Á‚Ä‚­‚¾‚³‚¢B
-
-#Œ´•¶
-{input_textbox.Text}
-
-#•\‹Lƒ‹[ƒ‹ 
-{instruct_text}
-
-#o—Í
-    ";
-                }
-                chat.AppendUserInput(prompt);
-
-                string response = await chat.GetResponseFromChatbotAsync();
-
-                /*
-                prompt = $@"‚ ‚È‚½‚Í–|–ó‚Ì{targetLangCaption}‚ÌZ³‚ÉŠÖ‚µ‚Ä¢ŠEÅ‚‚ÌƒvƒƒtƒFƒbƒVƒ‡ƒiƒ‹‚Å‚·BˆÈ‰º‚Ì{targetLangCaption}‚ÉŠÖ‚µ‚ÄA“úí‰ï˜b‚Æ‚µ‚Ä“Yí‚µ‚Ä‚­‚¾‚³‚¢B‰Á‚¦‚ÄAC³‰ÓŠ‚ª‚ ‚éê‡‚ÍA1‚Â‚ÌC³‰ÓŠ‚²‚Æ‚ÉC³——R‚ğÚ×‚Éà–¾‚µAC³ˆÄ‚ğ{targetLangCaption}‚Å‹LÚ‚µ‚Ä‚­‚¾‚³‚¢B‚È‚¨‰ğà‚Í“ú–{Œê‚Ås‚¢AC³ˆÄ‚Í‰Â”\‚ÈŒÀ‚èŒ³ˆÄ‚Æ•¶š”‚ğ‡‚í‚¹‚é‚±‚ÆB" + Environment.NewLine;
-                prompt += $"{response}";
-                chat.AppendUserInput(prompt);
-
-                response = await chat.GetResponseFromChatbotAsync();
-                */
-
-                output_textbox.Text = response;
+                var result = await openAITranslationService.TranslateAsync(sourceLang, targetLang, text, instruction);
+                outputTextBox.Text = result;
+            }
+            catch (Exception)
+            {
+                throw;
             }
             finally
             {
                 Cursor.Current = Cursors.Default;
-            }
-        }
-        #endregion
-
-
-        private static async Task Translate_DeepL(string sourceLang, string targetLang, RichTextBox input_textbox, RichTextBox output_textbox)
-        {
-            using var httpClient = new HttpClient();
-            using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://api-free.deepl.com/v2/translate"))
-            {
-                request.Headers.TryAddWithoutValidation("Authorization", "DeepL-Auth-Key " + Settings.Default.DeepLKey);
-                var contentList = new List<string>
-                    {
-                        "text=" + input_textbox.Text,
-                        "source_lang=" + sourceLang,
-                        "target_lang=" + targetLang
-                    };
-                request.Content = new StringContent(string.Join("&", contentList));
-                request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
-
-                var response = await httpClient.SendAsync(request);
-                var resBodyStr = response.Content.ReadAsStringAsync().Result;
-                TrnResponse trnResponse = JsonSerializer.Deserialize<TrnResponse>(resBodyStr, GlbUtil.GetJsonSerializerOptionsDefault());
-                GlbResponseBody glbResponseBody = new()
-                {
-                    Text = trnResponse.Translations.Count > 0 ? trnResponse.Translations[0].Text : "translation error."
-                };
-
-                output_textbox.Text = glbResponseBody.Text;
-                Console.WriteLine(output_textbox.Text);
             }
         }
 
@@ -317,13 +248,14 @@ namespace DualDeepL
             button2.Enabled = !checkBox1.Checked;
             TopMost = checkBox1.Checked;
         }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                // ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌI—¹‚ğƒLƒƒƒ“ƒZƒ‹
+                // ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®çµ‚äº†ã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«
                 e.Cancel = true;
-                // ƒtƒH[ƒ€‚ğ”ñ•\¦‚É‚µ‚Äƒ^ƒXƒNƒgƒŒƒC‚ÉŠi”[
+                // ãƒ•ã‚©ãƒ¼ãƒ ã‚’éè¡¨ç¤ºã«ã—ã¦ã‚¿ã‚¹ã‚¯ãƒˆãƒ¬ã‚¤ã«æ ¼ç´
                 Hide();
             }
         }
@@ -340,25 +272,47 @@ namespace DualDeepL
 
         private void combo_orig_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.OriginalLanguage = combo_orig.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void combo_first_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.FirstLanguage = combo_first.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.FirstLanguage = combo_first.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void combo_second_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.SecondLanguage = combo_second.SelectedIndex;
-            Settings.Default.Save();
+            try
+            {
+                Settings.Default.SecondLanguage = combo_second.SelectedIndex;
+                Settings.Default.Save();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.ShowUserFriendlyError("Settings", ex);
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
+            // Validate API keys are configured
+            ErrorHandler.ValidateApiKeys();
         }
 
         private void ShowWindow()
@@ -375,121 +329,4 @@ namespace DualDeepL
             Application.Exit();
         }
     }
-
-
-    public class ItemSet
-    {
-        public string Display { get; set; }
-        public string LangCode { get; set; }
-
-        public ItemSet(string v, string s)
-        {
-            LangCode = v;
-            Display = s;
-        }
-    }
-
-    #region utils
-
-    public static class GlbUtil
-    {
-        #region result code
-
-        public const string RESULT_CODE_SUCCESS = "0000";
-        public const string RESULT_CODE_ERROR = "9999";
-        public const string RESULT_MESSAGE_SUCCESS = "SUCCESS";
-        public const string RESULT_MESSAGE_ERROR = "ERROR OCCURED";
-
-        public static ReadOnlyDictionary<string, string> GetResultCodeDictionary()
-        {
-            try
-            {
-                var resultCodeDictionary = new Dictionary<string, string>
-                {
-                    { RESULT_CODE_SUCCESS, RESULT_MESSAGE_SUCCESS },
-                    { RESULT_CODE_ERROR,   RESULT_MESSAGE_ERROR },
-                };
-
-                var resultCodeDictionaryRo = new ReadOnlyDictionary<string, string>(resultCodeDictionary);
-
-                return resultCodeDictionaryRo;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        #endregion result code  
-
-        #region serializer
-
-        public static JsonSerializerOptions GetJsonSerializerOptionsDefault()
-        {
-            try
-            {
-                return new JsonSerializerOptions()
-                {
-                    IgnoreNullValues = true,
-                    PropertyNameCaseInsensitive = true
-                };
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        #endregion serializer
-    }
-
-    #endregion utils
-
-    #region glb response
-
-    public class GlbResponse
-    {
-        [JsonPropertyName("header")]
-        public string Header { get; set; }
-
-        [JsonPropertyName("body")]
-        public string Body { get; set; }
-    }
-
-    public class GlbResponseHeader
-    {
-        [JsonPropertyName("result_code")]
-        public string ResultCode { get; set; }
-
-        [JsonPropertyName("result_message")]
-        public string ResultMessage { get; set; }
-    }
-
-    public class GlbResponseBody
-    {
-        [JsonPropertyName("text")]
-        public string Text { get; set; }
-    }
-
-    #endregion glb response
-
-    #region translate response
-
-    public class TrnResponse
-    {
-        [JsonPropertyName("translations")]
-        public List<TrnResponseBody> Translations { get; set; }
-    }
-
-    public class TrnResponseBody
-    {
-        [JsonPropertyName("detected_source_language")]
-        public string DetectedSourceLanguage { get; set; }
-
-        [JsonPropertyName("text")]
-        public string Text { get; set; }
-    }
-
-    #endregion translate response
-
 }
