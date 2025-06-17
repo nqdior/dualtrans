@@ -37,18 +37,16 @@ namespace DualDeepL
         public MainForm()
         {
             InitializeComponent();
-            InitializeServices();
+            
+            // Initialize readonly services
+            openAITranslationService = new OpenAITranslationService();
+            deepLTranslationService = new DeepLTranslationService();
+            
             SetupLanguageComboBoxes();
             SetupEventHandlers();
             SetupTimer();
             SetupKeyboardHook();
             SetupTrayIcon();
-        }
-
-        private void InitializeServices()
-        {
-            openAITranslationService = new OpenAITranslationService();
-            deepLTranslationService = new DeepLTranslationService();
         }
 
         private void SetupLanguageComboBoxes()
