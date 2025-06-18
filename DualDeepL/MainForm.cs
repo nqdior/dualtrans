@@ -37,11 +37,11 @@ namespace DualDeepL
         public MainForm()
         {
             InitializeComponent();
-            
+
             // Initialize readonly services
             openAITranslationService = new OpenAITranslationService();
             deepLTranslationService = new DeepLTranslationService();
-            
+
             SetupLanguageComboBoxes();
             SetupEventHandlers();
             SetupTimer();
@@ -190,7 +190,7 @@ namespace DualDeepL
         {
             string orig = combo_orig.SelectedValue?.ToString();
             string first = combo_first.SelectedValue?.ToString();
-            
+
             if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(first) || string.IsNullOrWhiteSpace(textbox_first.Text))
                 return;
 
@@ -209,7 +209,7 @@ namespace DualDeepL
         {
             string orig = combo_orig.SelectedValue?.ToString();
             string second = combo_second.SelectedValue?.ToString();
-            
+
             if (string.IsNullOrEmpty(orig) || string.IsNullOrEmpty(second) || string.IsNullOrWhiteSpace(textbox_second.Text))
                 return;
 

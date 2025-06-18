@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 *.settings
+/DualDeepL/Properties/Settings.Designer.cs
+/DualDeepL/Properties/Settings.settings
+/DualDeepL/Properties/Settings.resx
+/DualDeepL/Properties/App.config
