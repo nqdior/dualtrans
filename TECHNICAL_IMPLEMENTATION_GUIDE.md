@@ -233,8 +233,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   secondInstruction: '',
   alwaysOnTop: false,
   windowBounds: {
-    width: 1061,
-    height: 800
+    width: 1200, // 実際の起動時に画面サイズに応じて調整される
+    height: 900  // 実際の起動時に画面サイズに応じて調整される
   },
   typingDelay: 1000,
   enableGlobalShortcut: true
@@ -472,8 +472,9 @@ const OriginalTextPanel: React.FC<OriginalTextPanelProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="翻訳したいテキストを入力してください..."
-          rows={6}
+          autoSize={{ minRows: 4, maxRows: 12 }}
           autoFocus
+          style={{ height: '20vh', minHeight: '120px' }}
         />
       </Spin>
     </Card>
@@ -562,9 +563,10 @@ const TranslationResultPanel: React.FC<TranslationResultPanelProps> = ({
           <TextArea
             value={translation}
             readOnly
-            rows={4}
+            autoSize={{ minRows: 3, maxRows: 8 }}
             placeholder="翻訳結果がここに表示されます..."
             className="translation-result"
+            style={{ height: '15vh', minHeight: '90px' }}
           />
           
           {/* 矢印 */}
@@ -576,9 +578,10 @@ const TranslationResultPanel: React.FC<TranslationResultPanelProps> = ({
           <TextArea
             value={reverseTranslation}
             readOnly
-            rows={3}
+            autoSize={{ minRows: 2, maxRows: 6 }}
             placeholder="逆翻訳結果がここに表示されます..."
             className="reverse-translation-result"
+            style={{ height: '12vh', minHeight: '72px' }}
           />
         </div>
       </Spin>
@@ -591,13 +594,15 @@ const TranslationResultPanel: React.FC<TranslationResultPanelProps> = ({
         onCancel={handleInstructionCancel}
         okText="保存"
         cancelText="キャンセル"
-        width={600}
+        width="80%"
+        style={{ maxWidth: '800px' }}
       >
         <TextArea
           value={tempInstruction}
           onChange={(e) => setTempInstruction(e.target.value)}
           placeholder="翻訳時の指示を入力してください（例: カジュアルな表現で翻訳、専門用語は日本語で併記、など）"
-          rows={6}
+          autoSize={{ minRows: 4, maxRows: 10 }}
+          style={{ height: '15vh', minHeight: '120px' }}
         />
       </Modal>
     </Card>
@@ -653,10 +658,19 @@ class DualDeepLApp {
 
   private createMainWindow() {
     const settings = this.settingsManager.getSettings();
+    const { screen } = require('electron');
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+    
+    // レスポンシブウィンドウサイズ計算
+    const defaultWidth = Math.min(1200, Math.floor(screenWidth * 0.8));
+    const defaultHeight = Math.min(900, Math.floor(screenHeight * 0.8));
     
     this.mainWindow = this.windowManager.createMainWindow({
-      width: settings.windowBounds.width,
-      height: settings.windowBounds.height,
+      width: settings.windowBounds.width || defaultWidth,
+      height: settings.windowBounds.height || defaultHeight,
+      minWidth: 800,
+      minHeight: 600,
       x: settings.windowBounds.x,
       y: settings.windowBounds.y,
       webPreferences: {
@@ -1235,5 +1249,171 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   }
 }));
 ```
+
+## レスポンシブスタイリング実装
+
+画面サイズに応じてテキストエリアが適切にリサイズされるよう、以下のCSS実装を追加します。
+
+### App.css
+```css
+/* src/renderer/App.css */
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ant-layout {
+  height: 100vh;
+}
+
+.ant-layout-content {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px); /* ヘッダー分を除く */
+  overflow: hidden;
+}
+```
+
+### MainLayout.css  
+```css
+/* src/renderer/components/Layout/MainLayout.css */
+.main-layout {
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e8e8e8;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 32px;
+  margin-right: 16px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.always-on-top-checkbox {
+  font-size: 14px;
+}
+```
+
+### TranslationPanel index.css
+```css
+/* src/renderer/components/TranslationPanel/index.css */
+.translation-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.translation-panel .ant-row {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.translation-panel .ant-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.original-text-panel .ant-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.original-text-panel .ant-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.original-text-panel .ant-input {
+  flex: 1;
+  min-height: 120px;
+  resize: none;
+}
+
+.translation-result-panel .ant-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.translation-result-panel .ant-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.translation-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.translation-result,
+.reverse-translation-result {
+  flex: 1;
+  min-height: 72px;
+  resize: none;
+}
+
+.arrow-container {
+  text-align: center;
+  padding: 4px 0;
+}
+
+.arrow-icon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+/* レスポンシブ調整 */
+@media (max-height: 600px) {
+  .translation-panel {
+    padding: 8px;
+  }
+  
+  .original-text-panel .ant-input {
+    min-height: 80px;
+  }
+  
+  .translation-result,
+  .reverse-translation-result {
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .translation-panel {
+    padding: 12px;
+  }
+}
+```
+
+このレスポンシブスタイリング実装により、画面サイズに応じてテキストエリアが適切にリサイズされ、固定値による余白の問題が解決されます。テキストエリアは画面の高さに対して適切な比率（vh単位）を使用し、最小高さも設定することで、小さなウィンドウでも使いやすさを保ちます。
 
 このImplementation Guideにより、実際のコード実装の詳細が提供されます。MIGRATION_SPECIFICATION.mdと合わせることで、完全な移行ガイドとなります。
